@@ -60,10 +60,14 @@ ImageViewer::ImageViewer()
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
 
-    QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
-    dockWidget->setAllowedAreas(Qt::RightDockWidgetArea);
-    dockWidget->setWidget(new ControlPanel());
-    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+    {
+        QScrollArea* scrollArea = new QScrollArea();
+        scrollArea->setWidgetResizable(true);
+        scrollArea->setWidget(new ControlPanel());
+        QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
+        dockWidget->setWidget(scrollArea);
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+    }
 
     createActions();
     createMenus();

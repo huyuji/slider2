@@ -5,7 +5,7 @@
 #include <QtWidgets>
 #include "SliderControl.h"
 
-class OperationControl : public QWidget
+class OperationControl : public QGroupBox
 {
     Q_OBJECT
 
@@ -23,7 +23,7 @@ private:
     static const unsigned int Step = 1;
 
     std::vector<SliderControl*> m_sliderControls;
-    QGridLayout* m_gridLayout;
+    QVBoxLayout* m_vbox;
     const QString m_name;
 };
 

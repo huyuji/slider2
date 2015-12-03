@@ -43,14 +43,15 @@ OperationControl* OperationControl::CreateOperationControl(const QString& operat
 }
 
 OperationControl::OperationControl(const QString& name)
-    : m_gridLayout(new QGridLayout()), m_name(name)
+    : m_vbox(new QVBoxLayout()), m_name(name)
 {
+    setTitle(name);
 }
 
 void OperationControl::addSlider(const QString& parameterName, int min, int max, unsigned int step)
 {
     SliderControl* sliderControl = new SliderControl(parameterName, min, max, step);
-    m_gridLayout->addWidget(sliderControl, m_sliderControls.size(), 0);
+    m_vbox->addWidget(sliderControl);
     m_sliderControls.push_back(sliderControl);
-    setLayout(m_gridLayout);
+    setLayout(m_vbox);
 }

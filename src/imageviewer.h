@@ -45,6 +45,7 @@
 #ifndef QT_NO_PRINTER
 #include <QPrinter>
 #endif
+#include "ControlPanel.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;

@@ -201,3 +201,5 @@ FakesAssemblies/
 /CMakeFiles
 /cmake_install.cmake
 *.sln
+moc_*.cpp
+*_automoc.cpp

@@ -46,6 +46,7 @@
 
 #include "imageviewer.h"
 #include "ControlPanel.h"
+#include "util.h"
 
 //! [0]
 ImageViewer::ImageViewer()
@@ -61,9 +62,13 @@ ImageViewer::ImageViewer()
     setCentralWidget(scrollArea);
 
     {
+        ControlPanel* controlPanel = new ControlPanel(m_operations);
+        connect(controlPanel, SIGNAL(valueChanged()), this, SLOT(controlPanelValueChanged()));
+
         QScrollArea* scrollArea = new QScrollArea();
         scrollArea->setWidgetResizable(true);
-        scrollArea->setWidget(new ControlPanel());
+        scrollArea->setWidget(controlPanel);
+
         QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
         dockWidget->setWidget(scrollArea);
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
@@ -80,10 +85,12 @@ ImageViewer::ImageViewer()
 
 bool ImageViewer::loadFile(const QString &fileName)
 {
-    QImageReader reader(fileName);
-    reader.setAutoTransform(true);
-    const QImage image = reader.read();
-    if (image.isNull()) {
+    //QImageReader reader(fileName);
+    //reader.setAutoTransform(true);
+    //reader.read(&m_image);
+    //if (m_image.isNull()) {
+    m_mat = std::move(OpenImage(fileName.toStdString()));
+    if(m_mat.empty()){
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
                                  tr("Cannot load %1.").arg(QDir::toNativeSeparators(fileName)));
         setWindowFilePath(QString());
@@ -92,7 +99,8 @@ bool ImageViewer::loadFile(const QString &fileName)
         return false;
     }
 //! [2] //! [3]
-    imageLabel->setPixmap(QPixmap::fromImage(image));
+    loadImage();
+
 //! [3] //! [4]
     scaleFactor = 1.0;
 
@@ -105,6 +113,20 @@ bool ImageViewer::loadFile(const QString &fileName)
 
     setWindowFilePath(fileName);
     return true;
+}
+
+bool ImageViewer::loadImage()
+{
+    imageLabel->setPixmap(QPixmap::fromImage(cvMatToQImage(m_operations.empty()? m_mat: ProcessImage(m_mat, m_operations))));
+    return true;
+}
+
+void ImageViewer::controlPanelValueChanged()
+{
+    if(!m_mat.empty())
+    {
+        loadImage();
+    }
 }
 
 //! [4]

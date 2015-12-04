@@ -29,6 +29,7 @@ file(GLOB SRC
 include_directories(
     ${OpenCV_INCLUDE_DIRS}
     ${BOOST_INCLUDEDIR}
+    ImageProcessor
     src
 )
 

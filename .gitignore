@@ -203,3 +203,5 @@ FakesAssemblies/
 *.sln
 moc_*.cpp
 *_automoc.cpp
+/*.json
+/*.xml

@@ -3,6 +3,7 @@
 #define idB6191E8A_5691_4BBF_B66B745335976433
 
 #include <QtWidgets>
+#include <boost/property_tree/ptree.hpp>
 #include "SliderControl.h"
 
 class OperationControl : public QGroupBox
@@ -10,12 +11,18 @@ class OperationControl : public QGroupBox
     Q_OBJECT
 
 public:
-    static OperationControl* CreateOperationControl(const QString& operationName);
+    static OperationControl* CreateOperationControl(const QString& operationName, boost::property_tree::ptree& operations);
+
+signals:
+    void valueChanged();
 
 protected:
     OperationControl(const QString& name);
 
-    void addSlider(const QString& parameterName, int min = Min, int max = Max, unsigned int step = Step);
+    void addSlider(const QString& parameterName, boost::property_tree::ptree& operation, int min = Min, int max = Max, unsigned int step = Step);
+
+private slots:
+    void sliderValueChanged();
 
 private:
     static const int Min = 0;

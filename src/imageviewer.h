@@ -45,7 +45,7 @@
 #ifndef QT_NO_PRINTER
 #include <QPrinter>
 #endif
-#include "ControlPanel.h"
+#include "ImageProcessor.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -101,6 +101,15 @@ private:
     QMenu *fileMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
+
+private slots:
+    void controlPanelValueChanged();
+
+private:
+    cv::Mat m_mat;
+    boost::property_tree::ptree m_operations;
+
+    bool loadImage();
 };
 //! [0]
 

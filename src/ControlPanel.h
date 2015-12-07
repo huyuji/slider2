@@ -17,23 +17,38 @@ signals:
 
 private slots:
     void addOperation();
-    void saveOperations();
+    void save();
+    void newConfig();
     void operationValueChanged();
     void loadConfigFile();
+    void loadConfiguration(const QString& operationName);
 
 private:
-    QPushButton* m_buttonLoad;
-    QPushButton* m_buttonSave;
+    QVBoxLayout* m_layout;
+        QHBoxLayout* m_buttonLine1;
+            QPushButton* m_buttonLoad;
+            QComboBox* m_configurationList;
+            QPushButton* m_buttonSave;
+            QPushButton* m_buttonNew;
+        QHBoxLayout* m_buttonLine2;
+            QComboBox* m_operationList;
+            QPushButton* m_buttonAddOperation;
+        QVBoxLayout* m_operationLayout;
 
-    QComboBox* m_operationList;
-    QPushButton* m_buttonAddOperation;
-
-    QGridLayout* m_gridLayout;
-
+    std::string m_configFilePath;
+    bool m_changeSaved;
+    boost::property_tree::ptree m_configurations;
     boost::property_tree::ptree& m_operations;
 
     void addOperation(const QString& operationName);
+    void addOperation(QVBoxLayout* layout, const QString& operationName, boost::property_tree::ptree& parameters);
+
     bool readConfigFile(const QString &fileName, boost::property_tree::ptree& configurations);
+    void loadConfigurations(const boost::property_tree::ptree& configurations);
+    void loadOperations(boost::property_tree::ptree& operations);
+    void clearOperations();
+
+    void saveToFile(const std::string& file);
 };
 
 #endif // header

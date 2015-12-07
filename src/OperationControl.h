@@ -11,7 +11,7 @@ class OperationControl : public QGroupBox
     Q_OBJECT
 
 public:
-    static OperationControl* CreateOperationControl(const QString& operationName, boost::property_tree::ptree& operations);
+    static OperationControl* CreateOperationControl(const QString& operationName, boost::property_tree::ptree& parameters);
 
 signals:
     void valueChanged();
@@ -19,7 +19,7 @@ signals:
 protected:
     OperationControl(const QString& name);
 
-    void addSlider(const QString& parameterName, boost::property_tree::ptree& operation, int min = Min, int max = Max, unsigned int step = Step);
+    void addSlider(const QString& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step);
 
 private slots:
     void sliderValueChanged();

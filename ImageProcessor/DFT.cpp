@@ -63,7 +63,7 @@ DFT::DFT(const boost::property_tree::ptree& params)
 
 void DFT::denormalizeParams()
 {
-
+    m_rmax /= 10;
 }
 
 cv::Mat DFT::operator()(const cv::Mat& image)

@@ -1,0 +1,16 @@
+{
+    "Configurations":
+    [
+        {
+            "Name": "predefined",
+            "IsDefault": true,
+            "Operations":
+            {
+                "CorrectGamma": { "gamma": 40 },
+                "Convert": { "bright": 40, "contrast": 40 },
+                "Contrast": { "histogram": 4 },
+                "GaussianBlur": { "alpha": 25, "beta": 50, "ksize": 15, "sigc": 20, "sigx": 11}                
+            }
+        }
+    ]
+}

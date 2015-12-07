@@ -33,7 +33,8 @@ ControlPanel::ControlPanel(ptree& operations)
     m_operationList->addItem("CorrectGamma");
     m_operationList->addItem("DFT");
     m_operationList->addItem("Erode");
-    m_operationList->addItem("Sharpen");
+    m_operationList->addItem("GaussianBlur");
+    m_operationList->addItem("BilateralFilter");
     m_operationList->addItem("Threshold");
 
     m_buttonAddOperation = new QPushButton("add processing");
@@ -143,12 +144,12 @@ void ControlPanel::newConfig()
 
     }
 
-    bool ok;
-    QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
-                                         tr("User name:"), QLineEdit::Normal,
-                                         QDir::home().dirName(), &ok);
-    if (ok && !text.isEmpty())
-        textLabel->setText(text);
+    //bool ok;
+    //QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
+    //                                     tr("User name:"), QLineEdit::Normal,
+    //                                     QDir::home().dirName(), &ok);
+    //if (ok && !text.isEmpty())
+    //    textLabel->setText(text);
 
 
     clearOperations();

@@ -1,0 +1,52 @@
+{
+    "Configurations":
+    [
+        {
+            "Name": "dej_sharp",
+            "IsDefault": true,
+            "Operations":
+            {
+                "CorrectGamma": { "gamma": 30 },
+                "Convert": { "bright": 50, "contrast": 50 },
+                "Contrast": { "histogram": 15 },
+                "DFT": { "kmask": 100, "rmin": 1, "rmax": 30 },
+                "CorrectGamma": { "gamma": 35 },
+                "Convert": { "bright": 50, "contrast": 70 },
+                "Contrast": { "histogram": 24 }
+            }
+        },
+        {
+            "Name": "paro_sharp",
+            "IsDefault": false,
+            "Operations":
+            {
+                "CorrectGamma": { "gamma": 50 },
+                "Convert": { "bright": 50, "contrast": 50 },
+                "Contrast": { "histogram": 10 },
+                "Erode": { "erode": 30 },
+                "DFT": { "kmask": 100, "rmin": 1, "rmax": 20 },
+                "CorrectGamma": { "gamma": 45 },
+                "Convert": { "bright": 80, "contrast": 70 },
+                "Contrast": { "histogram": 10 },
+                "Erode": { "erode": 10 },
+                "GaussianBlur": { "alpha": 7, "beta": 15, "ksize": 15, "sigc": 20, "sigx": 11}
+            }
+        },
+        {
+            "Name": "endo_sharp",
+            "IsDefault": false,
+            "Operations":
+            {
+                "Threshold": { "thresh": 20 },
+                "CorrectGamma": { "gamma": 50 },
+                "Convert": { "bright": 50, "contrast": 50 },
+                "Contrast": { "histogram": 10 },
+                "DFT": { "kmask": 100, "rmin": 1, "rmax": 20 },
+                "Threshold": { "thresh": 20 },
+                "CorrectGamma": { "gamma": 40 },
+                "Convert": { "bright": 50, "contrast": 60 },
+                "Contrast": { "histogram": 40 }
+            }
+        }
+    ]
+}

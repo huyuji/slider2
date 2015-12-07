@@ -1,0 +1,17 @@
+{
+    "Configurations":
+    [
+        {
+            "Name": "predefined",
+            "IsDefault": true,
+            "Operations":
+            {
+                "DFT": { "kmask": 100, "rmin": 1, "rmax": 14 },
+                "Threshold": { "thresh": 20 },
+                "CorrectGamma": { "gamma": 45 },
+                "Convert": { "bright": 58, "contrast": 40 },
+                "Contrast": { "histogram": 9 }
+            }
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+{
+    "Configurations":
+    [
+        {
+            "Name": "predefined",
+            "IsDefault": true,
+            "Operations":
+            {
+                "CorrectGamma": { "gamma": 43 },
+                "Convert": { "bright": 28, "contrast": 48 },
+                "Contrast": { "histogram": 30 },
+                "Erode": { "erode": 10 },
+                "GaussianBlur": { "alpha": 15, "beta": 30, "ksize": 15, "sigc": 20, "sigx": 11 }
+            }
+        }
+    ]
+}

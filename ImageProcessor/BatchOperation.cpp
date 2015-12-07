@@ -8,8 +8,9 @@
 #include "Convert.h"
 #include "Erode.h"
 #include "DFT.h"
-#include "Sharpen.h"
 #include "Threshold.h"
+#include "GaussianBlur.h"
+#include "BilateralFilter.h"
 
 using namespace ImageProcessor;
 
@@ -35,9 +36,13 @@ static boost::shared_ptr<Operation> CreateOperation(const std::string& name, con
     {
         return boost::shared_ptr<Operation>(new DFT(params));
     }
-    else if(boost::iequals(name, "Sharpen"))
+    else if(boost::iequals(name, "GaussianBlur"))
     {
-        return boost::shared_ptr<Operation>(new Sharpen(params));
+        return boost::shared_ptr<Operation>(new GaussianBlur(params));
+    }
+    else if(boost::iequals(name, "BilateralFilter"))
+    {
+        return boost::shared_ptr<Operation>(new BilateralFilter(params));
     }
     else if(boost::iequals(name, "Threshold"))
     {

@@ -1,0 +1,18 @@
+{
+    "Configurations":
+    [
+        {
+            "Name": "predefined",
+            "IsDefault": true,
+            "Operations":
+            {
+                "DFT": { "kmask": 100, "rmin": 1, "rmax": 16 },
+                "Threshold": { "thresh": 20 },
+                "CorrectGamma": { "gamma": 45 },
+                "Convert": { "bright": 50, "contrast": 60 },
+                "Contrast": { "histogram": 10 },
+                "BilateralFilter": { "ksize": 5, "sigc": 20, "sigx": 3}
+            }
+        }        
+    ]
+}

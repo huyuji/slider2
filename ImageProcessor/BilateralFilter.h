@@ -1,6 +1,6 @@
 #pragma once
-#ifndef idB9570046_FA43_434F_8A48AEFCA62BECC1
-#define idB9570046_FA43_434F_8A48AEFCA62BECC1
+#ifndef id6D2FD6FC_95D1_44DA_871AE489BE486224
+#define id6D2FD6FC_95D1_44DA_871AE489BE486224
 
 #include <string>
 #include <boost/property_tree/ptree.hpp>
@@ -9,21 +9,18 @@
 
 namespace ImageProcessor
 {
-    class Sharpen : public Operation
+    class BilateralFilter : public Operation
     {
     public:
-        Sharpen(const boost::property_tree::ptree& params);
+        BilateralFilter(const boost::property_tree::ptree& params);
         virtual cv::Mat operator()(const cv::Mat& image);
 
     private:
         void denormalizeParams();
 
-        double m_alpha;
-        double m_beta;
         double m_ksize;
         double m_sigc;
         double m_sigx;
-        std::string m_blur;
     };
 }
 

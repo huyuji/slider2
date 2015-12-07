@@ -19,7 +19,7 @@ signals:
 protected:
     OperationControl(const QString& name);
 
-    void addSlider(const QString& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step);
+    void addSlider(const std::string& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step);
 
 private slots:
     void sliderValueChanged();

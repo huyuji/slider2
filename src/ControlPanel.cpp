@@ -39,6 +39,7 @@ ControlPanel::ControlPanel(ptree& operations)
 
     m_buttonAddOperation = new QPushButton("add processing");
     connect( m_buttonAddOperation, SIGNAL( clicked() ), this, SLOT(addOperation()) );
+    m_buttonAddOperation->setDisabled(true);
 
     m_buttonLine1 = new QHBoxLayout();
     m_buttonLine1->addWidget(m_buttonLoad, 0, Qt::AlignLeft);
@@ -59,7 +60,9 @@ ControlPanel::ControlPanel(ptree& operations)
 
 void ControlPanel::addOperation()
 {
-    //addOperation(m_operationLayout, m_operationList->currentText());
+    m_operations.add_child(m_operationList->currentText().toStdString(), ptree());
+    addOperation(m_operationLayout, m_operationList->currentText(), m_operations.back().second);
+    operationValueChanged();
 }
 
 void ControlPanel::addOperation(QVBoxLayout* layout, const QString& operationName, boost::property_tree::ptree& parameters)
@@ -139,21 +142,36 @@ void ControlPanel::newConfig()
         }
     }
 
-    if(newConfigFile)
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Name the new configuration"),
+                                         tr("Name:"), QLineEdit::Normal, QString(), &ok);
+    if (ok && !text.isEmpty())
     {
+        if(newConfigFile)
+        {
+            m_configurations.clear();
+        }
 
+        for(auto it = m_configurations.begin(); it != m_configurations.end(); ++it)
+        {
+            const ptree& config = it->second;
+            std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
+            if(boost::iequals(name, text.toStdString()))
+            {
+                QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
+                                         tr("There is already a configuration named %1.").arg(QDir::toNativeSeparators(text)));
+                return;
+            }
+        }
+        
+        m_configurations.push_back(ptree::value_type("", ptree()));
+        ptree& operations = m_configurations.back().second;
+        operations.put(ImageProcessor::Const::CONFIG_NAME, text.toStdString());
+        operations.put(ImageProcessor::Const::CONFIG_ISDEFAULT, false);
+        operations.add_child(ImageProcessor::Const::CONFIG_OPERATIONS, ptree());
+        m_configurationList->addItem(text);
+        m_configurationList->setCurrentText(text);
     }
-
-    //bool ok;
-    //QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
-    //                                     tr("User name:"), QLineEdit::Normal,
-    //                                     QDir::home().dirName(), &ok);
-    //if (ok && !text.isEmpty())
-    //    textLabel->setText(text);
-
-
-    clearOperations();
-    m_operationLayout = new QVBoxLayout();
 }
 
 void ControlPanel::operationValueChanged()
@@ -251,6 +269,7 @@ void ControlPanel::loadOperations(boost::property_tree::ptree& operations)
     m_operationLayout = layout;
     m_layout->addLayout(m_operationLayout);
     m_operations = operations;
+    m_buttonAddOperation->setDisabled(false);
     emit valueChanged();
 }
 

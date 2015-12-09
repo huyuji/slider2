@@ -54,6 +54,8 @@ ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
     m_buttonLine2->addWidget(m_buttonAddOperation, 0);
 
     m_operationLayout = new QVBoxLayout();
+    m_operationLayout->setSpacing(0);
+    m_operationLayout->setContentsMargins(0, 0, 0, 0);
 
     m_layout = new QVBoxLayout();
     m_layout->setAlignment(Qt::AlignTop);
@@ -361,5 +363,23 @@ void ControlPanel::addOperation(const std::string& operationName, boost::propert
 {
     OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters);
     connect(operationControl, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
+    connect(operationControl, SIGNAL(operationDeleted(QWidget*)), this, SLOT(deleteOperation(QWidget*)));
     m_operationLayout->addWidget(operationControl);
+}
+
+ControlPanel::~ControlPanel()
+{
+    ClearLayout(m_layout);
+    delete m_layout;
+}
+
+void ControlPanel::deleteOperation(QWidget* operationControl)
+{
+    const unsigned int index = m_operationLayout->indexOf(operationControl);
+    m_operationLayout->removeWidget(operationControl);
+    delete operationControl;
+
+    auto it = m_operations->begin();
+    std::advance(it, index);
+    m_operations->erase(it);
 }

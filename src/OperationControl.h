@@ -6,15 +6,17 @@
 #include <boost/property_tree/ptree.hpp>
 #include "SliderControl.h"
 
-class OperationControl : public QGroupBox
+class OperationControl : public QWidget
 {
     Q_OBJECT
 
 public:
     static OperationControl* CreateOperationControl(const std::string& operationName, boost::property_tree::ptree& parameters);
+    ~OperationControl();
 
 signals:
     void valueChanged();
+    void operationDeleted(QWidget*);
 
 protected:
     OperationControl(const std::string& name);
@@ -23,6 +25,7 @@ protected:
 
 private slots:
     void sliderValueChanged();
+    void close();
 
 private:
     static const int Min = 0;
@@ -30,8 +33,15 @@ private:
     static const unsigned int Step = 1;
     static const unsigned int Page = 5;
 
-    std::vector<SliderControl*> m_sliderControls;
-    QVBoxLayout* m_vbox;
+    static const unsigned int ButtonWidth = 20;
+
+    QHBoxLayout* m_layout;
+        QVBoxLayout* m_buttonLayout;
+            QPushButton* m_buttonClose;
+            QPushButton* m_buttonDrag;
+        QGroupBox* m_box;
+            QVBoxLayout* m_boxLayout;
+
     const std::string m_name;
 };
 

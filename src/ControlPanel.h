@@ -11,6 +11,7 @@ class ControlPanel : public QWidget
 
 public:
     ControlPanel(const boost::property_tree::ptree *& operations);
+    ~ControlPanel();
 
 signals:
     void configFileChanged();
@@ -25,6 +26,7 @@ private slots:
     void operationValueChanged();
     void loadConfigFile();
     void loadConfiguration(const QString& configName);
+    void deleteOperation(QWidget*);
 
 private:
     QVBoxLayout* m_layout;

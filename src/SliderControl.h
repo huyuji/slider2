@@ -11,6 +11,7 @@ class SliderControl : public QWidget
 
 public:
     SliderControl(const std::string& name, boost::property_tree::ptree& parameter, int min, int max, unsigned int step, unsigned int page);
+    ~SliderControl();
 
 signals:
     void valueChanged();
@@ -25,6 +26,7 @@ private:
     QLabel* m_label;
     QSlider* m_slider;
     QSpinBox* m_spinBox;
+    QGridLayout* m_layout;
 
     const std::string m_name;
     boost::property_tree::ptree& m_parameter;

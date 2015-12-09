@@ -1,4 +1,5 @@
 #include "SliderControl.h"
+#include "util.h"
 
 using boost::property_tree::ptree;
 
@@ -24,12 +25,12 @@ SliderControl::SliderControl(const std::string& name, ptree& parameter, int min,
     connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(sliderValueChanged(int)));
     connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(spinBoxValueChanged(int)));
 
-    QGridLayout* layout = new QGridLayout();
-    layout->addWidget(m_label, 0, 0, Qt::AlignLeft);
-    layout->addWidget(m_slider, 0, 1);
-    layout->addWidget(m_spinBox, 0, 2, Qt::AlignRight);
+    m_layout = new QGridLayout();
+    m_layout->addWidget(m_label, 0, 0, Qt::AlignLeft);
+    m_layout->addWidget(m_slider, 0, 1);
+    m_layout->addWidget(m_spinBox, 0, 2, Qt::AlignRight);
 
-    setLayout(layout);
+    setLayout(m_layout);
 }
 
 void SliderControl::sliderValueChanged(int value)
@@ -51,4 +52,10 @@ void SliderControl::valueChanged(int value)
         m_parameter.put_value(value);
         emit valueChanged();
     }
+}
+
+SliderControl::~SliderControl()
+{
+    ClearLayout(m_layout);
+    delete m_layout;
 }

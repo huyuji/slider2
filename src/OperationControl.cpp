@@ -1,6 +1,7 @@
 #include "OperationControl.h"
 #include <exception>
 #include "Const.h"
+#include "util.h"
 
 using boost::property_tree::ptree;
 
@@ -57,9 +58,38 @@ OperationControl* OperationControl::CreateOperationControl(const std::string& op
 }
 
 OperationControl::OperationControl(const std::string& name)
-    : m_vbox(new QVBoxLayout()), m_name(name)
+    : m_name(name)
 {
-    setTitle(name.c_str());
+    setContentsMargins(0, 0, 0, 0);
+
+    m_buttonClose = new QPushButton("x");
+    m_buttonClose->setFlat(false);
+    m_buttonClose->setFixedWidth(ButtonWidth);
+    m_buttonClose->setContentsMargins(0, 0, 0, 0);
+    connect(m_buttonClose, SIGNAL(clicked()), this, SLOT(close()));
+
+    m_buttonDrag = new QPushButton("-");
+    m_buttonDrag->setFlat(false);
+    m_buttonDrag->setFixedWidth(ButtonWidth);
+    m_buttonDrag->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    m_buttonDrag->setContentsMargins(0, 0, 0, 0);
+
+    m_buttonLayout = new QVBoxLayout();
+    m_buttonLayout->setSpacing(0);
+    m_buttonLayout->addWidget(m_buttonClose);
+    m_buttonLayout->addWidget(m_buttonDrag);
+
+    m_box = new QGroupBox(name.c_str());
+    m_boxLayout = new QVBoxLayout();
+    m_boxLayout->setSpacing(0);
+    m_box->setLayout(m_boxLayout);
+    
+    m_layout = new QHBoxLayout();
+    m_layout->setSpacing(0);
+    m_layout->addLayout(m_buttonLayout);
+    m_layout->addWidget(m_box);
+
+    setLayout(m_layout);
 }
 
 void OperationControl::addSlider(const std::string& parameterName, ptree& parameters, int min, int max, unsigned int step, unsigned int page)
@@ -73,12 +103,21 @@ void OperationControl::addSlider(const std::string& parameterName, ptree& parame
 
     SliderControl* sliderControl = new SliderControl(parameterName.c_str(), *parameter, min, max, step, page);
     connect(sliderControl, SIGNAL(valueChanged()), this, SLOT(sliderValueChanged()));
-    m_vbox->addWidget(sliderControl);
-    m_sliderControls.push_back(sliderControl);
-    setLayout(m_vbox);
+    m_boxLayout->addWidget(sliderControl);
 }
 
 void OperationControl::sliderValueChanged()
 {
     emit valueChanged();
+}
+
+void OperationControl::close()
+{
+    emit operationDeleted(this);
+}
+
+OperationControl::~OperationControl()
+{
+    ClearLayout(m_layout);
+    delete m_layout;
 }

@@ -29,7 +29,7 @@
                 "Convert": { "bright": 80, "contrast": 70 },
                 "Contrast": { "histogram": 10 },
                 "Erode": { "erode": 10 },
-                "GaussianBlur": { "alpha": 7, "beta": 15, "ksize": 15, "sigc": 20, "sigx": 11}
+                "GaussianBlur": { "alpha": 7, "beta": 15, "ksize": 7, "sigc": 20, "sigx": 11}
             }
         },
         {

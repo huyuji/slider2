@@ -2,7 +2,7 @@
 
 using boost::property_tree::ptree;
 
-SliderControl::SliderControl(const std::string& name, ptree& parameter, int min, int max, unsigned int step)
+SliderControl::SliderControl(const std::string& name, ptree& parameter, int min, int max, unsigned int step, unsigned int page)
     : m_name(name), m_parameter(parameter)
 {
     int value = parameter.get_value<int>();
@@ -13,6 +13,7 @@ SliderControl::SliderControl(const std::string& name, ptree& parameter, int min,
     m_slider->setTickPosition(QSlider::TicksAbove);
     m_slider->setRange(min, max);
     m_slider->setSingleStep(step);
+    m_slider->setPageStep(page);
     m_slider->setValue(value);
 
     m_spinBox = new QSpinBox();

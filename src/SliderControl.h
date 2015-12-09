@@ -10,7 +10,7 @@ class SliderControl : public QWidget
     Q_OBJECT
 
 public:
-    SliderControl(const std::string& name, boost::property_tree::ptree& parameter, int min, int max, unsigned int step);
+    SliderControl(const std::string& name, boost::property_tree::ptree& parameter, int min, int max, unsigned int step, unsigned int page);
 
 signals:
     void valueChanged();

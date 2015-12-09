@@ -16,6 +16,7 @@ BilateralFilter::BilateralFilter(const boost::property_tree::ptree& params):
 
 void BilateralFilter::denormalizeParams()
 {
+    m_ksize = m_ksize * 2 + 1;
 }
 
 cv::Mat BilateralFilter::operator()(const cv::Mat& image)

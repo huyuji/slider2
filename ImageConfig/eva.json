@@ -10,12 +10,12 @@
                 "CorrectGamma": { "gamma": 35 },
                 "Convert": { "bright": 40, "contrast": 50 },
                 "Contrast": { "histogram": 0 },
-                "BilateralFilter": { "ksize": 5, "sigc": 20, "sigx": 3},
+                "BilateralFilter": { "ksize": 2, "sigc": 20, "sigx": 3},
                 "DFT": { "kmask": 100, "rmin": 1, "rmax": 15 },
                 "CorrectGamma": { "gamma": 50 },
                 "Convert": { "bright": 50, "contrast": 47 },
                 "Contrast": { "histogram": 5 },
-                "BilateralFilter": { "ksize": 5, "sigc": 20, "sigx": 3}
+                "BilateralFilter": { "ksize": 2, "sigc": 20, "sigx": 3}
             }
         }
     ]

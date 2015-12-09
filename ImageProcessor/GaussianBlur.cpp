@@ -20,6 +20,7 @@ void GaussianBlur::denormalizeParams()
 {
     m_alpha = m_alpha / 10.0 + 1;
     m_beta = -1 * m_beta / 20.0;
+    m_ksize = m_ksize * 2 + 1;
 }
 
 cv::Mat GaussianBlur::operator()(const cv::Mat& image)

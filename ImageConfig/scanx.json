@@ -11,7 +11,7 @@
                 "CorrectGamma": { "gamma": 45 },
                 "Convert": { "bright": 50, "contrast": 60 },
                 "Contrast": { "histogram": 10 },
-                "BilateralFilter": { "ksize": 5, "sigc": 20, "sigx": 3}
+                "BilateralFilter": { "ksize": 2, "sigc": 20, "sigx": 3}
             }
         }        
     ]

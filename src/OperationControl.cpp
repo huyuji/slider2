@@ -62,7 +62,7 @@ OperationControl::OperationControl(const std::string& name)
     setTitle(name.c_str());
 }
 
-void OperationControl::addSlider(const std::string& parameterName, ptree& parameters, int min, int max, unsigned int step)
+void OperationControl::addSlider(const std::string& parameterName, ptree& parameters, int min, int max, unsigned int step, unsigned int page)
 {
     boost::optional<ptree&> parameter = parameters.get_child_optional(parameterName);
     if(!parameter)
@@ -71,7 +71,7 @@ void OperationControl::addSlider(const std::string& parameterName, ptree& parame
         parameter = parameters.back().second;
     }
 
-    SliderControl* sliderControl = new SliderControl(parameterName.c_str(), *parameter, min, max, step);
+    SliderControl* sliderControl = new SliderControl(parameterName.c_str(), *parameter, min, max, step, page);
     connect(sliderControl, SIGNAL(valueChanged()), this, SLOT(sliderValueChanged()));
     m_vbox->addWidget(sliderControl);
     m_sliderControls.push_back(sliderControl);

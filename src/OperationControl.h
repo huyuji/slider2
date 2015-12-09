@@ -19,7 +19,7 @@ signals:
 protected:
     OperationControl(const std::string& name);
 
-    void addSlider(const std::string& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step);
+    void addSlider(const std::string& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step, unsigned int page = Page);
 
 private slots:
     void sliderValueChanged();
@@ -28,6 +28,7 @@ private:
     static const int Min = 0;
     static const int Max = 100;
     static const unsigned int Step = 1;
+    static const unsigned int Page = 5;
 
     std::vector<SliderControl*> m_sliderControls;
     QVBoxLayout* m_vbox;

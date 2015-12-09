@@ -107,7 +107,7 @@ private slots:
 
 private:
     cv::Mat m_mat;
-    boost::property_tree::ptree m_operations;
+    const boost::property_tree::ptree * m_operations;
 
     bool loadImage();
 };

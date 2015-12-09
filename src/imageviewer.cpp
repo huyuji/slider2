@@ -50,6 +50,7 @@
 
 //! [0]
 ImageViewer::ImageViewer()
+    : m_operations(nullptr)
 {
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -117,7 +118,7 @@ bool ImageViewer::loadFile(const QString &fileName)
 
 bool ImageViewer::loadImage()
 {
-    imageLabel->setPixmap(QPixmap::fromImage(cvMatToQImage(m_operations.empty()? m_mat: ProcessImage(m_mat, m_operations))));
+    imageLabel->setPixmap(QPixmap::fromImage(cvMatToQImage((!m_operations || m_operations->empty())? m_mat: ProcessImage(m_mat, *m_operations))));
     return true;
 }
 
@@ -136,15 +137,7 @@ void ImageViewer::controlPanelValueChanged()
 //! [1]
 void ImageViewer::open()
 {
-    QStringList mimeTypeFilters;
-    foreach (const QByteArray &mimeTypeName, QImageReader::supportedMimeTypes())
-        mimeTypeFilters.append(mimeTypeName);
-    mimeTypeFilters.sort();
-    QFileDialog dialog(this, tr("Open File"));
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setMimeTypeFilters(mimeTypeFilters);
-    dialog.selectMimeTypeFilter("image/jpeg");
-
+    QFileDialog dialog(this, tr("Open Image File"), QString(), tr("Image File (*.jpg; *.jpeg; *.png; *.bmp)"));
     while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
 }
 //! [1]

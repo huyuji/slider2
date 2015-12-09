@@ -134,6 +134,7 @@ void ControlPanel::clear()
     m_configurations = nullptr;
     m_operations = nullptr;
     ClearLayout(m_operationLayout);
+    m_configurationList->clear();
 }
 
 bool ControlPanel::saveChange()

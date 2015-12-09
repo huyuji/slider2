@@ -4,7 +4,7 @@
 
 using boost::property_tree::ptree;
 
-OperationControl* OperationControl::CreateOperationControl(const QString& operationName, ptree& parameters)
+OperationControl* OperationControl::CreateOperationControl(const std::string& operationName, ptree& parameters)
 {
     OperationControl* operationControl = new OperationControl(operationName);
 
@@ -50,16 +50,16 @@ OperationControl* OperationControl::CreateOperationControl(const QString& operat
     }
     else
     {
-        throw std::runtime_error("unknown operation " + operationName.toStdString());
+        throw std::runtime_error("unknown operation " + operationName);
     }
 
     return operationControl;
 }
 
-OperationControl::OperationControl(const QString& name)
+OperationControl::OperationControl(const std::string& name)
     : m_vbox(new QVBoxLayout()), m_name(name)
 {
-    setTitle(name);
+    setTitle(name.c_str());
 }
 
 void OperationControl::addSlider(const std::string& parameterName, ptree& parameters, int min, int max, unsigned int step)

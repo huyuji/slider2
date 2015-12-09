@@ -13,7 +13,10 @@ public:
     ControlPanel(boost::property_tree::ptree& operations);
 
 signals:
-    void valueChanged();
+    void configFileChanged();
+    void configSelectionChanged();
+    void configChanged();
+    void operationChanged();
 
 private slots:
     void addOperation();
@@ -21,7 +24,7 @@ private slots:
     void newConfig();
     void operationValueChanged();
     void loadConfigFile();
-    void loadConfiguration(const QString& operationName);
+    void loadConfiguration(const QString& configName);
 
 private:
     QVBoxLayout* m_layout;
@@ -37,18 +40,22 @@ private:
 
     std::string m_configFilePath;
     bool m_changeSaved;
-    boost::property_tree::ptree m_configurations;
-    boost::property_tree::ptree& m_operations;
+    boost::property_tree::ptree m_root;
+    boost::property_tree::ptree* m_configurations;
+    boost::property_tree::ptree* m_operations;
 
-    void addOperation(const QString& operationName);
-    void addOperation(QVBoxLayout* layout, const QString& operationName, boost::property_tree::ptree& parameters);
+    bool readConfigFile(const std::string& configFilePath);
+    void loadConfigurations();
+    void refreshConfiguraionList(const std::vector<std::string>& configNames, const std::string& currentConfig);
+    void loadOperations();
+    void addOperation(const std::string& operationName, boost::property_tree::ptree& parameters);
 
-    bool readConfigFile(const QString &fileName, boost::property_tree::ptree& configurations);
-    void loadConfigurations(const boost::property_tree::ptree& configurations);
-    void loadOperations(boost::property_tree::ptree& operations);
-    void clearOperations();
-
+    bool saveToFile();
     void saveToFile(const std::string& file);
+    bool saveChange();
+    void clear();
+    void initRoot();
+    void newConfiguration(const std::string& configName);
 };
 
 #endif // header

@@ -2,11 +2,11 @@
 
 using boost::property_tree::ptree;
 
-SliderControl::SliderControl(const QString& name, ptree& parameter, int min, int max, unsigned int step)
+SliderControl::SliderControl(const std::string& name, ptree& parameter, int min, int max, unsigned int step)
     : m_name(name), m_parameter(parameter)
 {
     int value = parameter.get_value<int>();
-    QLabel *m_label = new QLabel(name);
+    QLabel *m_label = new QLabel(name.c_str());
 
     m_slider = new QSlider(Qt::Horizontal);
     m_slider->setFocusPolicy(Qt::StrongFocus);

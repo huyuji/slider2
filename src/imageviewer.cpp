@@ -63,7 +63,7 @@ ImageViewer::ImageViewer()
 
     {
         ControlPanel* controlPanel = new ControlPanel(m_operations);
-        connect(controlPanel, SIGNAL(valueChanged()), this, SLOT(controlPanelValueChanged()));
+        connect(controlPanel, SIGNAL(operationChanged()), this, SLOT(controlPanelValueChanged()));
 
         QScrollArea* scrollArea = new QScrollArea();
         scrollArea->setWidgetResizable(true);

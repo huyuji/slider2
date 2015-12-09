@@ -1,6 +1,7 @@
 #include "ControlPanel.h"
 
 #include <fstream>
+#include <vector>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm//string.hpp>
@@ -12,7 +13,8 @@
 using boost::property_tree::ptree;
 
 ControlPanel::ControlPanel(ptree& operations)
-    : m_operations(operations), m_operationLayout(nullptr), m_changeSaved(true)
+    : m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr)
+
 {
     m_buttonLoad = new QPushButton("load");
     connect(m_buttonLoad, SIGNAL(clicked()), this, SLOT(loadConfigFile()));
@@ -21,6 +23,7 @@ ControlPanel::ControlPanel(ptree& operations)
     m_configurationList->setInsertPolicy(QComboBox::InsertAlphabetically);
 
     m_buttonSave = new QPushButton("save");
+    m_buttonSave->setDisabled(m_changeSaved);
     connect(m_buttonSave, SIGNAL(clicked()), this, SLOT(save()));
 
     m_buttonNew = new QPushButton("new");
@@ -51,32 +54,34 @@ ControlPanel::ControlPanel(ptree& operations)
     m_buttonLine2->addWidget(m_operationList, 1);
     m_buttonLine2->addWidget(m_buttonAddOperation, 0);
 
+    m_operationLayout = new QVBoxLayout();
+
     m_layout = new QVBoxLayout();
     m_layout->setAlignment(Qt::AlignTop);
     m_layout->addLayout(m_buttonLine1);
     m_layout->addLayout(m_buttonLine2);
+    m_layout->addLayout(m_operationLayout);
     setLayout(m_layout);
 }
 
 void ControlPanel::addOperation()
 {
-    m_operations.add_child(m_operationList->currentText().toStdString(), ptree());
-    addOperation(m_operationLayout, m_operationList->currentText(), m_operations.back().second);
+    std::string opName = m_operationList->currentText().toStdString();
+    m_operations->add_child(opName, ptree());
+    addOperation(opName, m_operations->back().second);
     operationValueChanged();
-}
-
-void ControlPanel::addOperation(QVBoxLayout* layout, const QString& operationName, boost::property_tree::ptree& parameters)
-{
-    OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters);
-    connect(operationControl, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
-    layout->addWidget(operationControl);
 }
 
 void ControlPanel::save()
 {
+    saveToFile();
+}
+
+bool ControlPanel::saveToFile()
+{
     if(m_changeSaved)
     {
-        return;
+        return true;
     }
 
     if(!m_configFilePath.empty())
@@ -89,12 +94,12 @@ void ControlPanel::save()
         const int ret = msgBox.exec();
         if(ret == QMessageBox::Cancel)
         {
-            return;
+            return false;
         }
         else if(ret == QMessageBox::Yes)
         {
             saveToFile(m_configFilePath);
-            return;
+            return true;
         }
     }
 
@@ -107,19 +112,96 @@ void ControlPanel::save()
             m_configFilePath += ".json";
         }
         saveToFile(m_configFilePath);
+        return true;
     }
+
+    return false;
 }
 
 void ControlPanel::saveToFile(const std::string& file)
 {
     std::ofstream json(file);
-    boost::property_tree::write_json(json, m_configurations, true);
+    boost::property_tree::write_json(json, m_root, true);
     m_changeSaved = true;
+    m_buttonSave->setDisabled(m_changeSaved);
+}
+
+void ControlPanel::clear()
+{
+    m_configFilePath.clear();
+    m_changeSaved = true;
+    m_buttonSave->setDisabled(m_changeSaved);
+    m_root.clear();
+    m_configurations = nullptr;
+    m_operations = nullptr;
+    ClearLayout(m_operationLayout);
+}
+
+bool ControlPanel::saveChange()
+{
+    if(m_changeSaved)
+    {
+        return true;
+    }
+
+    QMessageBox msgBox;
+    msgBox.setInformativeText("You have unsaved changes. Do you want to keep them?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    const int ret = msgBox.exec();
+    if(ret == QMessageBox::Save)
+    {
+        return saveToFile();
+    }
+    else if(ret == QMessageBox::Discard)
+    {
+        clear();
+        return true;
+    }
+    else if(ret == QMessageBox::Cancel)
+    {
+        return false;
+    }
+    else
+    {
+        throw std::runtime_error("program should not reach here");
+    }
+}
+
+void ControlPanel::initRoot()
+{
+    m_root.clear();
+    m_root.add_child(ImageProcessor::Const::CONFIG_CONFIGURATIONS, ptree());
+    m_configurations = &m_root.get_child(ImageProcessor::Const::CONFIG_CONFIGURATIONS);
+}
+
+void ControlPanel::newConfiguration(const std::string& configName)
+{
+    for(auto it = m_configurations->begin(); it != m_configurations->end(); ++it)
+    {
+        const ptree& config = it->second;
+        std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
+        if(boost::iequals(name, configName))
+        {
+            QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
+                                        tr("There is already a configuration named %1.").arg(QDir::toNativeSeparators(configName.c_str())));
+            return;
+        }
+    }
+
+    m_configurations->push_back(ptree::value_type("", ptree()));
+    ptree& config = m_configurations->back().second;
+    config.put(ImageProcessor::Const::CONFIG_NAME, configName);
+    config.put(ImageProcessor::Const::CONFIG_ISDEFAULT, false);
+    config.add_child(ImageProcessor::Const::CONFIG_OPERATIONS, ptree());
+    m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
+    ClearLayout(m_operationLayout);
+    m_buttonAddOperation->setDisabled(false);
 }
 
 void ControlPanel::newConfig()
 {
-    bool newConfigFile = false;
+    bool newConfigFile = true;
 
     if(!m_configFilePath.empty())
     {
@@ -134,6 +216,11 @@ void ControlPanel::newConfig()
         }
         else if(ret == QMessageBox::No)
         {
+            if(!saveChange())
+            {
+                return;
+            }
+
             newConfigFile = true;
         }
         else if(ret == QMessageBox::Cancel)
@@ -143,32 +230,16 @@ void ControlPanel::newConfig()
     }
 
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Name the new configuration"),
-                                         tr("Name:"), QLineEdit::Normal, QString(), &ok);
+    QString text = QInputDialog::getText(this, tr(""), tr("Name the new configuration:"), QLineEdit::Normal, QString(), &ok);
     if (ok && !text.isEmpty())
     {
         if(newConfigFile)
         {
-            m_configurations.clear();
-        }
-
-        for(auto it = m_configurations.begin(); it != m_configurations.end(); ++it)
-        {
-            const ptree& config = it->second;
-            std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
-            if(boost::iequals(name, text.toStdString()))
-            {
-                QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                         tr("There is already a configuration named %1.").arg(QDir::toNativeSeparators(text)));
-                return;
-            }
+            clear();
+            initRoot();
         }
         
-        m_configurations.push_back(ptree::value_type("", ptree()));
-        ptree& operations = m_configurations.back().second;
-        operations.put(ImageProcessor::Const::CONFIG_NAME, text.toStdString());
-        operations.put(ImageProcessor::Const::CONFIG_ISDEFAULT, false);
-        operations.add_child(ImageProcessor::Const::CONFIG_OPERATIONS, ptree());
+        newConfiguration(text.toStdString());
         m_configurationList->addItem(text);
         m_configurationList->setCurrentText(text);
     }
@@ -177,50 +248,54 @@ void ControlPanel::newConfig()
 void ControlPanel::operationValueChanged()
 {
     m_changeSaved = false;
-    emit valueChanged();
+    m_buttonSave->setDisabled(m_changeSaved);
+    emit operationChanged();
 }
 
 void ControlPanel::loadConfigFile()
 {
+    if(!saveChange())
+    {
+        return;
+    }
+
     QFileDialog dialog(this, tr("Open Config File"), QString(), tr("Json File (*.json)"));
-    ptree configurations;
-    while (dialog.exec() == QDialog::Accepted && !readConfigFile(dialog.selectedFiles().first(), configurations)) {}
+    while (dialog.exec() == QDialog::Accepted && !readConfigFile(dialog.selectedFiles().first().toStdString())) {}
 }
 
-bool ControlPanel::readConfigFile(const QString &fileName, ptree& configurations)
+bool ControlPanel::readConfigFile(const std::string& configFilePath)
 {
     try
     {
-        read_json(fileName.toStdString(), configurations);
-        configurations = configurations.get_child(ImageProcessor::Const::CONFIG_CONFIGURATIONS);
-        if(configurations.empty())
+        read_json(configFilePath, m_root);
+        m_configurations = &m_root.get_child(ImageProcessor::Const::CONFIG_CONFIGURATIONS);
+        if(m_configurations->empty())
         {
             QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                     tr("No configuration found in %1.").arg(QDir::toNativeSeparators(fileName)));
+                                     tr("No configuration found in %1.").arg(QDir::toNativeSeparators(configFilePath.c_str())));
+            clear();
             return false;
         }
-        else
-        {
-            loadConfigurations(configurations);
-            m_configFilePath = fileName.toStdString();
-        }
+
+        m_configFilePath = configFilePath;
+        loadConfigurations();
     }
     catch(std::exception& e)
     {
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                 tr("Cannot load %1.").arg(QDir::toNativeSeparators(fileName)));
+                                 tr("Cannot load %1.").arg(QDir::toNativeSeparators(configFilePath.c_str())));
+        clear();
         return false;
     }
 
     return true;
 }
 
-void ControlPanel::loadConfigurations(const boost::property_tree::ptree& configurations)
+void ControlPanel::loadConfigurations()
 {
-    disconnect(m_configurationList, SIGNAL(currentTextChanged(const QString &)));
-    m_configurationList->clear();
     std::string defaultConfigName;
-    for(auto it = configurations.begin(); it != configurations.end(); ++it)
+    std::vector<std::string> configNames;
+    for(auto it = m_configurations->begin(); it != m_configurations->end(); ++it)
     {
         const ptree& config = it->second;
         std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
@@ -229,56 +304,60 @@ void ControlPanel::loadConfigurations(const boost::property_tree::ptree& configu
         {
             defaultConfigName = name;
         }
-        m_configurationList->addItem(name.c_str());
-    }
-    if(!defaultConfigName.empty())
-    {
-        m_configurationList->setCurrentText(defaultConfigName.c_str());
+        configNames.push_back(name);
     }
 
-    m_configurations = configurations;
+    refreshConfiguraionList(configNames, defaultConfigName);
     loadConfiguration(m_configurationList->currentText());
+}
+
+void ControlPanel::refreshConfiguraionList(const std::vector<std::string>& configNames, const std::string& currentConfig)
+{
+    disconnect(m_configurationList, SIGNAL(currentTextChanged(const QString &)));
+
+    m_configurationList->clear();
+    for(auto it = configNames.begin(); it != configNames.end(); ++it)
+    {
+        m_configurationList->addItem(it->c_str());
+    }
+    if(!currentConfig.empty())
+    {
+        m_configurationList->setCurrentText(currentConfig.c_str());
+    }
+
     connect(m_configurationList, SIGNAL(currentTextChanged(const QString &)), this, SLOT(loadConfiguration(const QString &)));
 }
 
-void ControlPanel::loadConfiguration(const QString& operationName)
+void ControlPanel::loadConfiguration(const QString& configName)
 {
-    for(auto it = m_configurations.begin(); it != m_configurations.end(); ++it)
+    for(auto it = m_configurations->begin(); it != m_configurations->end(); ++it)
     {
         ptree& config = it->second;
         const std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
-        if(boost::iequals(name, operationName.toStdString()))
+        if(boost::iequals(name, configName.toStdString()))
         {
-            loadOperations(config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS));
+            ClearLayout(m_operationLayout);
+            m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
+            loadOperations();
+            m_buttonAddOperation->setDisabled(false);
             return;
         }
     }
 
-    throw std::runtime_error(("configuration " + operationName + " not found").toStdString());
+    throw std::runtime_error(("configuration " + configName.toStdString() + " not found"));
 }
 
-void ControlPanel::loadOperations(boost::property_tree::ptree& operations)
+void ControlPanel::loadOperations()
 {
-    QVBoxLayout* layout = new QVBoxLayout();
-    for(auto it = operations.begin(); it != operations.end(); ++it)
+    for(auto it = m_operations->begin(); it != m_operations->end(); ++it)
     {
-        addOperation(layout, it->first.c_str(), it->second);
+        addOperation(it->first, it->second);
     }
-
-    clearOperations();
-    m_operationLayout = layout;
-    m_layout->addLayout(m_operationLayout);
-    m_operations = operations;
-    m_buttonAddOperation->setDisabled(false);
-    emit valueChanged();
 }
 
-void ControlPanel::clearOperations()
+void ControlPanel::addOperation(const std::string& operationName, boost::property_tree::ptree& parameters)
 {
-    if(m_operationLayout)
-    {
-        DeleteLayout(m_operationLayout);
-        m_layout->removeItem(m_operationLayout);
-    }
-    m_operationLayout = nullptr;
+    OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters);
+    connect(operationControl, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
+    m_operationLayout->addWidget(operationControl);
 }

@@ -11,13 +11,13 @@ class OperationControl : public QGroupBox
     Q_OBJECT
 
 public:
-    static OperationControl* CreateOperationControl(const QString& operationName, boost::property_tree::ptree& parameters);
+    static OperationControl* CreateOperationControl(const std::string& operationName, boost::property_tree::ptree& parameters);
 
 signals:
     void valueChanged();
 
 protected:
-    OperationControl(const QString& name);
+    OperationControl(const std::string& name);
 
     void addSlider(const std::string& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step);
 
@@ -31,7 +31,7 @@ private:
 
     std::vector<SliderControl*> m_sliderControls;
     QVBoxLayout* m_vbox;
-    const QString m_name;
+    const std::string m_name;
 };
 
 //class ContrastControl : public OperationControl

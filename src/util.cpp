@@ -130,7 +130,7 @@ cv::Mat QPixmapToCvMat( const QPixmap &inPixmap, bool inCloneImageData )
     return QImageToCvMat( inPixmap.toImage(), inCloneImageData );
 }
 
-void DeleteLayout(QLayout* layout)
+void ClearLayout(QLayout* layout)
 {
     if(layout)
     {
@@ -141,7 +141,7 @@ void DeleteLayout(QLayout* layout)
         {
             if ((sublayout = item->layout()) != 0)
             {
-                DeleteLayout(sublayout);
+                ClearLayout(sublayout);
             }
             else if ((widget = item->widget()) != 0)
             {
@@ -153,7 +153,5 @@ void DeleteLayout(QLayout* layout)
                 delete item;
             }
         }
-
-        delete layout;
     }
 }

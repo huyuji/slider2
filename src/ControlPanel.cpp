@@ -316,7 +316,7 @@ void ControlPanel::loadConfigurations()
 
 void ControlPanel::refreshConfiguraionList(const std::vector<std::string>& configNames, const std::string& currentConfig)
 {
-    disconnect(m_configurationList, SIGNAL(currentTextChanged(const QString &)));
+    disconnect(m_configurationList, SIGNAL(currentTextChanged(const QString &)), this, SLOT(loadConfiguration(const QString &)));
 
     m_configurationList->clear();
     for(auto it = configNames.begin(); it != configNames.end(); ++it)
@@ -342,8 +342,9 @@ void ControlPanel::loadConfiguration(const QString& configName)
             ClearLayout(m_operationLayout);
             m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
             loadOperations();
-            operationValueChanged();
+            m_output = m_operations;
             m_buttonAddOperation->setDisabled(false);
+            emit operationChanged();
             return;
         }
     }

@@ -333,6 +333,11 @@ void ControlPanel::refreshConfiguraionList(const std::vector<std::string>& confi
 
 void ControlPanel::loadConfiguration(const QString& configName)
 {
+    if(configName.isEmpty())
+    {
+        return;
+    }
+
     for(auto it = m_configurations->begin(); it != m_configurations->end(); ++it)
     {
         ptree& config = it->second;
@@ -383,4 +388,5 @@ void ControlPanel::deleteOperation(QWidget* operationControl)
     auto it = m_operations->begin();
     std::advance(it, index);
     m_operations->erase(it);
+    operationValueChanged();
 }

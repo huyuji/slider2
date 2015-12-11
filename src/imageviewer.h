@@ -42,9 +42,6 @@
 #define IMAGEVIEWER_H
 
 #include <QMainWindow>
-#ifndef QT_NO_PRINTER
-#include <QPrinter>
-#endif
 #include "ImageProcessor.h"
 
 QT_BEGIN_NAMESPACE
@@ -66,7 +63,8 @@ public:
 
 private slots:
     void open();
-    void print();
+    void save();
+    void saveAs();
     void zoomIn();
     void zoomOut();
     void normalSize();
@@ -84,19 +82,15 @@ private:
     QScrollArea *scrollArea;
     double scaleFactor;
 
-#ifndef QT_NO_PRINTER
-    QPrinter printer;
-#endif
-
     QAction *openAct;
-    QAction *printAct;
+    QAction *saveAct;
+    QAction *saveAsAct;
     QAction *exitAct;
     QAction *zoomInAct;
     QAction *zoomOutAct;
     QAction *normalSizeAct;
     QAction *fitToWindowAct;
     QAction *aboutAct;
-    QAction *aboutQtAct;
 
     QMenu *fileMenu;
     QMenu *viewMenu;

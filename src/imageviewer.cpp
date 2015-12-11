@@ -39,10 +39,6 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-#ifndef QT_NO_PRINTER
-#include <QPrintDialog>
-#endif
-#include <qslider.h>
 
 #include "imageviewer.h"
 #include "ControlPanel.h"
@@ -78,7 +74,8 @@ ImageViewer::ImageViewer()
     createActions();
     createMenus();
 
-    resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
+    showMaximized();
+    //resize(QGuiApplication::primaryScreen()->availableVirtualSize());
 }
 
 //! [0]
@@ -105,7 +102,7 @@ bool ImageViewer::loadFile(const QString &fileName)
 //! [3] //! [4]
     scaleFactor = 1.0;
 
-    printAct->setEnabled(true);
+    saveAct->setEnabled(true);
     fitToWindowAct->setEnabled(true);
     updateActions();
 
@@ -140,33 +137,18 @@ void ImageViewer::open()
     QFileDialog dialog(this, tr("Open Image File"), QString(), tr("Image File (*.jpg; *.jpeg; *.png; *.bmp)"));
     while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
 }
-//! [1]
 
-//! [5]
-void ImageViewer::print()
-//! [5] //! [6]
+void ImageViewer::save()
 {
-    Q_ASSERT(imageLabel->pixmap());
-#if !defined(QT_NO_PRINTER) && !defined(QT_NO_PRINTDIALOG)
-//! [6] //! [7]
-    QPrintDialog dialog(&printer, this);
-//! [7] //! [8]
-    if (dialog.exec()) {
-        QPainter painter(&printer);
-        QRect rect = painter.viewport();
-        QSize size = imageLabel->pixmap()->size();
-        size.scale(rect.size(), Qt::KeepAspectRatio);
-        painter.setViewport(rect.x(), rect.y(), size.width(), size.height());
-        painter.setWindow(imageLabel->pixmap()->rect());
-        painter.drawPixmap(0, 0, *imageLabel->pixmap());
-    }
-#endif
+    
 }
-//! [8]
 
-//! [9]
+void ImageViewer::saveAs()
+{
+    
+}
+
 void ImageViewer::zoomIn()
-//! [9] //! [10]
 {
     scaleImage(1.25);
 }
@@ -176,18 +158,13 @@ void ImageViewer::zoomOut()
     scaleImage(0.8);
 }
 
-//! [10] //! [11]
 void ImageViewer::normalSize()
-//! [11] //! [12]
 {
     imageLabel->adjustSize();
     scaleFactor = 1.0;
 }
-//! [12]
 
-//! [13]
 void ImageViewer::fitToWindow()
-//! [13] //! [14]
 {
     bool fitToWindow = fitToWindowAct->isChecked();
     scrollArea->setWidgetResizable(fitToWindow);
@@ -203,19 +180,6 @@ void ImageViewer::fitToWindow()
 void ImageViewer::about()
 //! [15] //! [16]
 {
-    QMessageBox::about(this, tr("About Image Viewer"),
-            tr("<p>The <b>Image Viewer</b> example shows how to combine QLabel "
-               "and QScrollArea to display an image. QLabel is typically used "
-               "for displaying a text, but it can also display an image. "
-               "QScrollArea provides a scrolling view around another widget. "
-               "If the child widget exceeds the size of the frame, QScrollArea "
-               "automatically provides scroll bars. </p><p>The example "
-               "demonstrates how QLabel's ability to scale its contents "
-               "(QLabel::scaledContents), and QScrollArea's ability to "
-               "automatically resize its contents "
-               "(QScrollArea::widgetResizable), can be used to implement "
-               "zooming and scaling features. </p><p>In addition the example "
-               "shows how to use QPainter to print an image.</p>"));
 }
 //! [16]
 
@@ -227,10 +191,10 @@ void ImageViewer::createActions()
     openAct->setShortcut(tr("Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    printAct = new QAction(tr("&Print..."), this);
-    printAct->setShortcut(tr("Ctrl+P"));
-    printAct->setEnabled(false);
-    connect(printAct, SIGNAL(triggered()), this, SLOT(print()));
+    saveAct = new QAction(tr("&Save..."), this);
+    saveAct->setShortcut(tr("Ctrl+S"));
+    saveAct->setEnabled(false);
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -259,9 +223,6 @@ void ImageViewer::createActions()
 
     aboutAct = new QAction(tr("&About"), this);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
-
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 //! [18]
 
@@ -271,7 +232,7 @@ void ImageViewer::createMenus()
 {
     fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
-    fileMenu->addAction(printAct);
+    fileMenu->addAction(saveAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
@@ -284,7 +245,6 @@ void ImageViewer::createMenus()
 
     helpMenu = new QMenu(tr("&Help"), this);
     helpMenu->addAction(aboutAct);
-    helpMenu->addAction(aboutQtAct);
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(viewMenu);

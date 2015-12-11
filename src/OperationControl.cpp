@@ -24,6 +24,7 @@ OperationControl* OperationControl::CreateOperationControl(const std::string& op
     }
     else if(operationName == "DFT")
     {
+        operationControl->addSlider(ImageProcessor::Const::kmask, parameters, 1, 100);
         operationControl->addSlider(ImageProcessor::Const::rmax, parameters);
     }
     else if(operationName == "Erode")

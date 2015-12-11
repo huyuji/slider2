@@ -56,7 +56,7 @@ namespace
 DFT::DFT(const boost::property_tree::ptree& params)
     : m_kmask(params.get<double>(Const::kmask)),
       m_rmax(params.get<double>(Const::rmax)),
-      m_rmin(params.get<double>(Const::rmin))
+      m_rmin(1.0)//m_rmin(params.get<double>(Const::rmin))
 {
     denormalizeParams();
 }

@@ -6,8 +6,8 @@ set(BOOST_LIBRARYDIR "e:/lib/boost/boost_1_58_0/lib32-msvc-10.0")
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.58 COMPONENTS thread chrono system date_time filesystem)
 
-set(Qt5DIR "e:/lib/Qt/5.5/msvc2010")
-set(Qt5Widgets_DIR ${Qt5DIR}lib/cmake/Qt5Widgets)
+set(Qt5DIR "e:/lib/qt/5.5/msvc2010")
+set(Qt5Widgets_DIR ${Qt5DIR}/lib/cmake/Qt5Widgets/)
 find_package(Qt5Widgets REQUIRED )
 set(CMAKE_AUTOMOC ON)
 

@@ -4,6 +4,7 @@
 
 #include <QtWidgets>
 #include <boost/property_tree/ptree.hpp>
+#include "OperationControl.h"
 
 class OperationList : public QWidget
 {
@@ -13,11 +14,19 @@ public:
     OperationList();
     ~OperationList();
 
+    void addItem(OperationControl* item);
+
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) Q_DECL_OVERRIDE;
+    void dragMoveEvent(QDragMoveEvent *event) Q_DECL_OVERRIDE;
+    void dropEvent(QDropEvent *event) Q_DECL_OVERRIDE;
+
 signals:
 
 private slots:
 
 private:
+    QVBoxLayout* m_layout;
 };
 
 #endif // header

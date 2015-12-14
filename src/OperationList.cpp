@@ -44,8 +44,6 @@ void OperationList::dropEvent(QDropEvent *event)
         QPoint location;
         dataStream >> pixmap >> location;
 
-        addPiece(pixmap, location);
-
         event->setDropAction(Qt::MoveAction);
         event->accept();
     } else {

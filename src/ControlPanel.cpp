@@ -28,16 +28,16 @@ ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
     m_buttonNew = new QPushButton("new");
     connect(m_buttonNew, SIGNAL(clicked()), this, SLOT(newConfig()));
 
-    m_operationList = new QComboBox();
-    m_operationList->setInsertPolicy(QComboBox::InsertAlphabetically);
-    m_operationList->addItem("Contrast");
-    m_operationList->addItem("Convert");
-    m_operationList->addItem("CorrectGamma");
-    m_operationList->addItem("DFT");
-    m_operationList->addItem("Erode");
-    m_operationList->addItem("GaussianBlur");
-    m_operationList->addItem("BilateralFilter");
-    m_operationList->addItem("Threshold");
+    m_operationNameList = new QComboBox();
+    m_operationNameList->setInsertPolicy(QComboBox::InsertAlphabetically);
+    m_operationNameList->addItem("Contrast");
+    m_operationNameList->addItem("Convert");
+    m_operationNameList->addItem("CorrectGamma");
+    m_operationNameList->addItem("DFT");
+    m_operationNameList->addItem("Erode");
+    m_operationNameList->addItem("GaussianBlur");
+    m_operationNameList->addItem("BilateralFilter");
+    m_operationNameList->addItem("Threshold");
 
     m_buttonAddOperation = new QPushButton("add processing");
     connect( m_buttonAddOperation, SIGNAL( clicked() ), this, SLOT(addOperation()) );
@@ -50,24 +50,22 @@ ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
     m_buttonLine1->addWidget(m_buttonNew, 0);
 
     m_buttonLine2 = new QHBoxLayout();
-    m_buttonLine2->addWidget(m_operationList, 1);
+    m_buttonLine2->addWidget(m_operationNameList, 1);
     m_buttonLine2->addWidget(m_buttonAddOperation, 0);
 
-    m_operationLayout = new QVBoxLayout();
-    m_operationLayout->setSpacing(0);
-    m_operationLayout->setContentsMargins(0, 0, 0, 0);
+    m_operationList = new OperationList();
 
     m_layout = new QVBoxLayout();
     m_layout->setAlignment(Qt::AlignTop);
     m_layout->addLayout(m_buttonLine1);
     m_layout->addLayout(m_buttonLine2);
-    m_layout->addLayout(m_operationLayout);
+    m_layout->addWidget(m_operationList, 1);
     setLayout(m_layout);
 }
 
 void ControlPanel::addOperation()
 {
-    std::string opName = m_operationList->currentText().toStdString();
+    std::string opName = m_operationNameList->currentText().toStdString();
     m_operations->add_child(opName, ptree());
     addOperation(opName, m_operations->back().second);
     operationValueChanged();
@@ -135,7 +133,7 @@ void ControlPanel::clear()
     m_root.clear();
     m_configurations = nullptr;
     m_operations = nullptr;
-    ClearLayout(m_operationLayout);
+    m_operationList->clear();
     m_configurationList->clear();
 }
 
@@ -197,7 +195,7 @@ void ControlPanel::newConfiguration(const std::string& configName)
     config.put(ImageProcessor::Const::CONFIG_ISDEFAULT, false);
     config.add_child(ImageProcessor::Const::CONFIG_OPERATIONS, ptree());
     m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
-    ClearLayout(m_operationLayout);
+    m_operationList->clear();
     m_buttonAddOperation->setDisabled(false);
 }
 
@@ -344,7 +342,7 @@ void ControlPanel::loadConfiguration(const QString& configName)
         const std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
         if(boost::iequals(name, configName.toStdString()))
         {
-            ClearLayout(m_operationLayout);
+            m_operationList->clear();
             m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
             loadOperations();
             m_output = m_operations;
@@ -370,7 +368,7 @@ void ControlPanel::addOperation(const std::string& operationName, boost::propert
     OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters);
     connect(operationControl, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
     connect(operationControl, SIGNAL(operationDeleted(QWidget*)), this, SLOT(deleteOperation(QWidget*)));
-    m_operationLayout->addWidget(operationControl);
+    m_operationList->add(operationControl);
 }
 
 ControlPanel::~ControlPanel()
@@ -381,12 +379,12 @@ ControlPanel::~ControlPanel()
 
 void ControlPanel::deleteOperation(QWidget* operationControl)
 {
-    const unsigned int index = m_operationLayout->indexOf(operationControl);
-    m_operationLayout->removeWidget(operationControl);
-    delete operationControl;
+    //const unsigned int index = m_operationLayout->indexOf(operationControl);
+    //m_operationLayout->removeWidget(operationControl);
+    //delete operationControl;
 
-    auto it = m_operations->begin();
-    std::advance(it, index);
-    m_operations->erase(it);
-    operationValueChanged();
+    //auto it = m_operations->begin();
+    //std::advance(it, index);
+    //m_operations->erase(it);
+    //operationValueChanged();
 }

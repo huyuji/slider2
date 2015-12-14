@@ -74,6 +74,7 @@ OperationControl::OperationControl(const std::string& name)
     m_buttonDrag->setFixedWidth(ButtonWidth);
     m_buttonDrag->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     m_buttonDrag->setContentsMargins(0, 0, 0, 0);
+    connect(m_buttonDrag, SIGNAL(pressed()), this, SLOT(dragPressed()));
 
     m_buttonLayout = new QVBoxLayout();
     m_buttonLayout->setSpacing(0);
@@ -121,4 +122,9 @@ OperationControl::~OperationControl()
 {
     ClearLayout(m_layout);
     delete m_layout;
+}
+
+void OperationControl::dragPressed()
+{
+    emit dragStarted(this);
 }

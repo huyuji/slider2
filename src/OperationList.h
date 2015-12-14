@@ -11,10 +11,10 @@ class OperationList : public QWidget
     Q_OBJECT
 
 public:
-    OperationList();
-    ~OperationList();
+    OperationList(QWidget* parent = nullptr);
 
-    void addItem(OperationControl* item);
+    void add(OperationControl* item);
+    void clear();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) Q_DECL_OVERRIDE;
@@ -24,8 +24,11 @@ protected:
 signals:
 
 private slots:
+    void startDrag(OperationControl*);
 
 private:
+    static const char* MimeDataFormat;
+
     QVBoxLayout* m_layout;
 };
 

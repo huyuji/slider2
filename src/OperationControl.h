@@ -17,6 +17,7 @@ public:
 signals:
     void valueChanged();
     void operationDeleted(QWidget*);
+    void dragStarted(OperationControl*);
 
 protected:
     OperationControl(const std::string& name);
@@ -26,6 +27,7 @@ protected:
 private slots:
     void sliderValueChanged();
     void close();
+    void dragPressed();
 
 private:
     static const int Min = 0;

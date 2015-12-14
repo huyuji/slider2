@@ -4,6 +4,7 @@
 
 #include <QtWidgets>
 #include <boost/property_tree/ptree.hpp>
+#include "OperationList.h"
 
 class ControlPanel : public QWidget
 {
@@ -36,9 +37,9 @@ private:
             QPushButton* m_buttonSave;
             QPushButton* m_buttonNew;
         QHBoxLayout* m_buttonLine2;
-            QComboBox* m_operationList;
+            QComboBox* m_operationNameList;
             QPushButton* m_buttonAddOperation;
-        QVBoxLayout* m_operationLayout;
+        OperationList* m_operationList;
 
     std::string m_configFilePath;
     bool m_changeSaved;

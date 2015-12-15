@@ -53,22 +53,22 @@ void OperationList::deleteOperation(OperationControl* operationControl)
 
 void OperationList::startDrag(OperationControl* item)
 {
-    QDrag *drag = new QDrag(this);
-    QMimeData *mimeData = new QMimeData;
-
     const unsigned int index = m_layout->indexOf(item);
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
     dataStream << index;
 
+    QMimeData *mimeData = new QMimeData;
     mimeData->setData(MimeDataFormat, itemData);
+
+    QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setPixmap(item->grab());
 
-    m_layout->removeWidget(item);
-    item->hide();
-    delete item;
+    QGraphicsOpacityEffect * effect = new QGraphicsOpacityEffect();
+    effect->setOpacity(0.5);
+    item->setGraphicsEffect(effect);
 
     Qt::DropAction dropAction = drag->exec();
 }
@@ -84,7 +84,25 @@ void OperationList::dragEnterEvent(QDragEnterEvent *event)
 void OperationList::dragMoveEvent(QDragMoveEvent *event)
 {
     if (event->mimeData()->hasFormat(MimeDataFormat)) {
-        event->setDropAction(Qt::MoveAction);
+        QByteArray itemData = event->mimeData()->data(MimeDataFormat);
+        QDataStream dataStream(&itemData, QIODevice::ReadOnly);
+        unsigned int index = -1;
+        dataStream >> index;
+
+        foreach(QWidget* item, findChildren<QWidget*>())
+        {
+            if(event->answerRect().intersects(item->geometry()))
+            {
+                unsigned int targetIndex = m_layout->indexOf(item);
+                if(targetIndex != index)
+                {
+                    auto item = m_layout->itemAt(index);
+                    m_layout->removeItem(item);
+                    m_layout->insertItem(targetIndex, item);
+                }
+            }
+        }
+
         event->accept();
     } else {
         event->ignore();

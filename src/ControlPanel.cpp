@@ -7,13 +7,12 @@
 #include <boost/algorithm//string.hpp>
 #include <boost/filesystem.hpp>
 #include "Const.h"
-#include "OperationControl.h"
-#include "util.h"
+#include "OperationList.h"
 
 using boost::property_tree::ptree;
 
-ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
-    : m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr), m_output(operations), m_operationList(nullptr)
+ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations, QWidget* parent)
+    : QWidget(parent), m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr), m_output(operations), m_operationList(nullptr)
 {
     m_buttonLoad = new QPushButton("load");
     connect(m_buttonLoad, SIGNAL(clicked()), this, SLOT(loadConfigFile()));
@@ -53,11 +52,10 @@ ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
     m_buttonLine2->addWidget(m_operationNameList, 1);
     m_buttonLine2->addWidget(m_buttonAddOperation, 0);
 
-    m_layout = new QVBoxLayout();
+    m_layout = new QVBoxLayout(this);
     m_layout->setAlignment(Qt::AlignTop);
     m_layout->addLayout(m_buttonLine1);
     m_layout->addLayout(m_buttonLine2);
-    setLayout(m_layout);
 }
 
 void ControlPanel::clearOperationList()
@@ -73,7 +71,7 @@ void ControlPanel::clearOperationList()
 void ControlPanel::createOperationList(boost::property_tree::ptree& operations)
 {
     clearOperationList();
-    m_operationList = new OperationList(operations, this);
+    m_operationList = new OperationList(operations);
     connect(m_operationList, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
     m_layout->addWidget(m_operationList, 1);
 }
@@ -364,10 +362,4 @@ void ControlPanel::loadConfiguration(const QString& configName)
     }
 
     throw std::runtime_error(("configuration " + configName.toStdString() + " not found"));
-}
-
-ControlPanel::~ControlPanel()
-{
-    ClearLayout(m_layout);
-    delete m_layout;
 }

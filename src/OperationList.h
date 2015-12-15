@@ -4,7 +4,8 @@
 
 #include <QtWidgets>
 #include <boost/property_tree/ptree.hpp>
-#include "OperationControl.h"
+
+class OperationControl;
 
 class OperationList : public QWidget
 {
@@ -25,7 +26,7 @@ protected:
 
 private slots:
     void startDrag(OperationControl*);
-    void deleteOperation(QWidget*);
+    void deleteOperation(OperationControl*);
 
 private:
     static const char* MimeDataFormat;

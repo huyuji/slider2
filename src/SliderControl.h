@@ -26,12 +26,11 @@ private slots:
 private:
     void valueChanged(int);
 
-    QLabel* m_label;
-    QSlider* m_slider;
-    QSpinBox* m_spinBox;
     QHBoxLayout* m_layout;
+        QLabel* m_label;
+        QSlider* m_slider;
+        QSpinBox* m_spinBox;
 
-    const std::string m_name;
     boost::property_tree::ptree& m_parameter;
 };
 

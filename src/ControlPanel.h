@@ -4,15 +4,15 @@
 
 #include <QtWidgets>
 #include <boost/property_tree/ptree.hpp>
-#include "OperationList.h"
+
+class OperationList;
 
 class ControlPanel : public QWidget
 {
     Q_OBJECT
 
 public:
-    ControlPanel(const boost::property_tree::ptree *& operations);
-    ~ControlPanel();
+    ControlPanel(const boost::property_tree::ptree *& operations, QWidget* parent = nullptr);
 
 signals:
     void configFileChanged();

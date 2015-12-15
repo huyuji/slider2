@@ -15,6 +15,4 @@ cv::Mat QImageToCvMat( const QImage &inImage, bool inCloneImageData = true );
 
 cv::Mat QPixmapToCvMat( const QPixmap &inPixmap, bool inCloneImageData = true );
 
-void ClearLayout(QLayout* layout);
-
 #endif // header

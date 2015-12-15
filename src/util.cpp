@@ -129,29 +129,3 @@ cv::Mat QPixmapToCvMat( const QPixmap &inPixmap, bool inCloneImageData )
 {
     return QImageToCvMat( inPixmap.toImage(), inCloneImageData );
 }
-
-void ClearLayout(QLayout* layout)
-{
-    if(layout)
-    {
-        QLayoutItem * item;
-        QLayout * sublayout;
-        QWidget * widget;
-        while ((item = layout->takeAt(0))) 
-        {
-            if ((sublayout = item->layout()) != 0)
-            {
-                ClearLayout(sublayout);
-            }
-            else if ((widget = item->widget()) != 0)
-            {
-                widget->hide();
-                delete widget;
-            }
-            else 
-            {
-                delete item;
-            }
-        }
-    }
-}

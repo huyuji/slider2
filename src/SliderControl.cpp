@@ -1,5 +1,4 @@
 #include "SliderControl.h"
-#include "util.h"
 
 using boost::property_tree::ptree;
 
@@ -8,11 +7,11 @@ SliderControl::SliderControl(
     ptree& parameter, 
     int min, int max, unsigned int step, unsigned int page,
     QWidget* parent)
-    : QWidget(parent), m_name(name), m_parameter(parameter)
+    : QWidget(parent), m_parameter(parameter)
 {
     int value = parameter.get_value<int>();
 
-    QLabel *m_label = new QLabel(name.c_str());
+    m_label = new QLabel(name.c_str());
 
     m_slider = new QSlider(Qt::Horizontal);
     m_slider->setTickPosition(QSlider::TicksAbove);

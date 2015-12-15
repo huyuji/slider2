@@ -1,5 +1,5 @@
 #include "OperationList.h"
-#include "util.h"
+#include "OperationControl.h"
 
 using boost::property_tree::ptree;
 
@@ -26,9 +26,9 @@ OperationList::OperationList(boost::property_tree::ptree& operations, QWidget* p
 
 void OperationList::addOperation(const std::string& operationName, boost::property_tree::ptree& parameters)
 {
-    OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters, this);
+    OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters);
     connect(operationControl, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
-    connect(operationControl, SIGNAL(operationDeleted(QWidget*)), this, SLOT(deleteOperation(QWidget*)));
+    connect(operationControl, SIGNAL(closed(OperationControl*)), this, SLOT(deleteOperation(OperationControl*)));
     connect(operationControl, SIGNAL(dragStarted(OperationControl*)), this, SLOT(startDrag(OperationControl*)));
     m_layout->addWidget(operationControl, 0);
 }
@@ -40,7 +40,7 @@ void OperationList::newOperation(const std::string& operationName)
     emit valueChanged();
 }
 
-void OperationList::deleteOperation(QWidget* operationControl)
+void OperationList::deleteOperation(OperationControl* operationControl)
 {
     const unsigned int index = m_layout->indexOf(operationControl);
     m_layout->removeWidget(operationControl);

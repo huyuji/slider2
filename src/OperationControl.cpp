@@ -1,7 +1,7 @@
 #include "OperationControl.h"
 #include <exception>
 #include "Const.h"
-#include "util.h"
+#include "SliderControl.h"
 
 using boost::property_tree::ptree;
 
@@ -59,7 +59,7 @@ OperationControl* OperationControl::CreateOperationControl(const std::string& op
 }
 
 OperationControl::OperationControl(const std::string& name, QWidget* parent)
-    : QWidget(parent), m_name(name)
+    : QWidget(parent)
 {
     setContentsMargins(0, 0, 0, 0);
 
@@ -84,17 +84,17 @@ OperationControl::OperationControl(const std::string& name, QWidget* parent)
     m_box = new QGroupBox(name.c_str());
     m_boxLayout = new QVBoxLayout(m_box);
     m_boxLayout->setSpacing(0);
-    //m_box->setLayout(m_boxLayout);
     
-    m_layout = new QHBoxLayout();
+    m_layout = new QHBoxLayout(this);
     m_layout->setSpacing(0);
     m_layout->addLayout(m_buttonLayout);
     m_layout->addWidget(m_box);
-
-    setLayout(m_layout);
 }
 
-void OperationControl::addSlider(const std::string& parameterName, ptree& parameters, int min, int max, unsigned int step, unsigned int page)
+void OperationControl::addSlider(
+    const std::string& parameterName, 
+    ptree& parameters, 
+    int min, int max, unsigned int step, unsigned int page)
 {
     boost::optional<ptree&> parameter = parameters.get_child_optional(parameterName);
     if(!parameter)
@@ -110,7 +110,7 @@ void OperationControl::addSlider(const std::string& parameterName, ptree& parame
 
 void OperationControl::close()
 {
-    emit operationDeleted(this);
+    emit closed(this);
 }
 
 void OperationControl::dragPressed()

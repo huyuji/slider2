@@ -4,24 +4,21 @@
 
 #include <QtWidgets>
 #include <boost/property_tree/ptree.hpp>
-#include "SliderControl.h"
 
 class OperationControl : public QWidget
 {
     Q_OBJECT
 
 public:
-    static OperationControl* CreateOperationControl(const std::string& operationName, boost::property_tree::ptree& parameters, QWidget* parent = nullptr);
+    static OperationControl* CreateOperationControl(
+        const std::string& operationName, 
+        boost::property_tree::ptree& parameters, 
+        QWidget* parent = nullptr);
 
 signals:
     void valueChanged();
-    void operationDeleted(QWidget*);
+    void closed(OperationControl*);
     void dragStarted(OperationControl*);
-
-protected:
-    OperationControl(const std::string& name, QWidget* parent = nullptr);
-
-    void addSlider(const std::string& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step, unsigned int page = Page);
 
 private slots:
     void close();
@@ -32,7 +29,6 @@ private:
     static const int Max = 100;
     static const unsigned int Step = 1;
     static const unsigned int Page = 5;
-
     static const unsigned int ButtonWidth = 20;
 
     QHBoxLayout* m_layout;
@@ -42,15 +38,12 @@ private:
         QGroupBox* m_box;
             QVBoxLayout* m_boxLayout;
 
-    const std::string m_name;
-};
+    OperationControl(const std::string& name, QWidget* parent = nullptr);
 
-//class ContrastControl : public OperationControl
-//{
-//    Q_OBJECT
-//
-//public:
-//    ContrastControl();
-//};
+    void addSlider(
+        const std::string& parameterName, 
+        boost::property_tree::ptree& parameters, 
+        int min = Min, int max = Max, unsigned int step = Step, unsigned int page = Page);
+};
 
 #endif // header

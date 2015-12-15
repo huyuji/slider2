@@ -52,6 +52,8 @@ class QScrollArea;
 class QScrollBar;
 QT_END_NAMESPACE
 
+class ControlPanel;
+
 //! [0]
 class ImageViewer : public QMainWindow
 {
@@ -101,8 +103,7 @@ private slots:
 
 private:
     cv::Mat m_mat;
-    const boost::property_tree::ptree * m_operations;
-
+    ControlPanel* m_controlPanel;
     bool loadImage();
 };
 //! [0]

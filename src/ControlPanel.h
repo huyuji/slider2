@@ -12,7 +12,8 @@ class ControlPanel : public QWidget
     Q_OBJECT
 
 public:
-    ControlPanel(const boost::property_tree::ptree *& operations, QWidget* parent = nullptr);
+    ControlPanel(QWidget* parent = nullptr);
+    const boost::property_tree::ptree& getOperations() const { return m_operations ? *m_operations : m_root ; };
 
 signals:
     void configFileChanged();
@@ -45,7 +46,6 @@ private:
     boost::property_tree::ptree m_root;
     boost::property_tree::ptree* m_configurations;
     boost::property_tree::ptree* m_operations;
-    const boost::property_tree::ptree *& m_output;
 
     bool readConfigFile(const std::string& configFilePath);
     void loadConfigurations();

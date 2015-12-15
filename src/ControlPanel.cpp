@@ -11,8 +11,8 @@
 
 using boost::property_tree::ptree;
 
-ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations, QWidget* parent)
-    : QWidget(parent), m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr), m_output(operations), m_operationList(nullptr)
+ControlPanel::ControlPanel(QWidget* parent)
+    : QWidget(parent), m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr), m_operationList(nullptr)
 {
     m_buttonLoad = new QPushButton("load");
     connect(m_buttonLoad, SIGNAL(clicked()), this, SLOT(loadConfigFile()));
@@ -259,7 +259,6 @@ void ControlPanel::operationValueChanged()
 {
     m_changeSaved = false;
     m_buttonSave->setDisabled(m_changeSaved);
-    m_output = m_operations;
     emit operationChanged();
 }
 
@@ -354,7 +353,6 @@ void ControlPanel::loadConfiguration(const QString& configName)
         {
             m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
             createOperationList(*m_operations);
-            m_output = m_operations;
             m_buttonAddOperation->setDisabled(false);
             emit operationChanged();
             return;

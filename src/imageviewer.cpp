@@ -46,7 +46,6 @@
 
 //! [0]
 ImageViewer::ImageViewer()
-    : m_operations(nullptr)
 {
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -59,12 +58,12 @@ ImageViewer::ImageViewer()
     setCentralWidget(scrollArea);
 
     {
-        ControlPanel* controlPanel = new ControlPanel(m_operations);
-        connect(controlPanel, SIGNAL(operationChanged()), this, SLOT(controlPanelValueChanged()));
+        m_controlPanel = new ControlPanel();
+        connect(m_controlPanel, SIGNAL(operationChanged()), this, SLOT(controlPanelValueChanged()));
 
         QScrollArea* scrollArea = new QScrollArea();
         scrollArea->setWidgetResizable(true);
-        scrollArea->setWidget(controlPanel);
+        scrollArea->setWidget(m_controlPanel);
 
         QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
         dockWidget->setWidget(scrollArea);
@@ -75,7 +74,6 @@ ImageViewer::ImageViewer()
     createMenus();
 
     showMaximized();
-    //resize(QGuiApplication::primaryScreen()->availableVirtualSize());
 }
 
 //! [0]
@@ -83,10 +81,6 @@ ImageViewer::ImageViewer()
 
 bool ImageViewer::loadFile(const QString &fileName)
 {
-    //QImageReader reader(fileName);
-    //reader.setAutoTransform(true);
-    //reader.read(&m_image);
-    //if (m_image.isNull()) {
     m_mat = std::move(OpenImage(fileName.toStdString()));
     if(m_mat.empty()){
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
@@ -103,6 +97,7 @@ bool ImageViewer::loadFile(const QString &fileName)
     scaleFactor = 1.0;
 
     saveAct->setEnabled(true);
+    saveAsAct->setEnabled(true);
     fitToWindowAct->setEnabled(true);
     updateActions();
 
@@ -115,7 +110,8 @@ bool ImageViewer::loadFile(const QString &fileName)
 
 bool ImageViewer::loadImage()
 {
-    imageLabel->setPixmap(QPixmap::fromImage(cvMatToQImage((!m_operations || m_operations->empty())? m_mat: ProcessImage(m_mat, *m_operations))));
+    const boost::property_tree::ptree& operations = m_controlPanel->getOperations();
+    imageLabel->setPixmap(QPixmap::fromImage(cvMatToQImage(operations.empty()? m_mat: ProcessImage(m_mat, operations))));
     return true;
 }
 
@@ -127,11 +123,6 @@ void ImageViewer::controlPanelValueChanged()
     }
 }
 
-//! [4]
-
-//! [2]
-
-//! [1]
 void ImageViewer::open()
 {
     QFileDialog dialog(this, tr("Open Image File"), QString(), tr("Image File (*.jpg; *.jpeg; *.png; *.bmp)"));
@@ -140,12 +131,14 @@ void ImageViewer::open()
 
 void ImageViewer::save()
 {
-    
+    //TODO: save image
+    QMessageBox::information(this, QGuiApplication::applicationDisplayName(), tr("save"));
 }
 
 void ImageViewer::saveAs()
 {
-    
+    //TODO: save image
+    QMessageBox::information(this, QGuiApplication::applicationDisplayName(), tr("save as"));
 }
 
 void ImageViewer::zoomIn()
@@ -166,6 +159,7 @@ void ImageViewer::normalSize()
 
 void ImageViewer::fitToWindow()
 {
+    //TODO: keep ratio
     bool fitToWindow = fitToWindowAct->isChecked();
     scrollArea->setWidgetResizable(fitToWindow);
     if (!fitToWindow) {
@@ -191,10 +185,15 @@ void ImageViewer::createActions()
     openAct->setShortcut(tr("Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    saveAct = new QAction(tr("&Save..."), this);
+    saveAct = new QAction(tr("&Save Image..."), this);
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setEnabled(false);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
+
+    saveAsAct = new QAction(tr("Save Image As..."), this);
+    saveAsAct->setShortcut(tr("Ctrl+Shift+S"));
+    saveAsAct->setEnabled(false);
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -233,6 +232,7 @@ void ImageViewer::createMenus()
     fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
+    fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 

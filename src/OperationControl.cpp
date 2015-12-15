@@ -5,9 +5,9 @@
 
 using boost::property_tree::ptree;
 
-OperationControl* OperationControl::CreateOperationControl(const std::string& operationName, ptree& parameters)
+OperationControl* OperationControl::CreateOperationControl(const std::string& operationName, ptree& parameters, QWidget* parent)
 {
-    OperationControl* operationControl = new OperationControl(operationName);
+    OperationControl* operationControl = new OperationControl(operationName, parent);
 
     if(operationName == "Contrast")
     {
@@ -58,8 +58,8 @@ OperationControl* OperationControl::CreateOperationControl(const std::string& op
     return operationControl;
 }
 
-OperationControl::OperationControl(const std::string& name)
-    : m_name(name)
+OperationControl::OperationControl(const std::string& name, QWidget* parent)
+    : QWidget(parent), m_name(name)
 {
     setContentsMargins(0, 0, 0, 0);
 
@@ -82,9 +82,9 @@ OperationControl::OperationControl(const std::string& name)
     m_buttonLayout->addWidget(m_buttonDrag);
 
     m_box = new QGroupBox(name.c_str());
-    m_boxLayout = new QVBoxLayout();
+    m_boxLayout = new QVBoxLayout(m_box);
     m_boxLayout->setSpacing(0);
-    m_box->setLayout(m_boxLayout);
+    //m_box->setLayout(m_boxLayout);
     
     m_layout = new QHBoxLayout();
     m_layout->setSpacing(0);
@@ -104,24 +104,13 @@ void OperationControl::addSlider(const std::string& parameterName, ptree& parame
     }
 
     SliderControl* sliderControl = new SliderControl(parameterName.c_str(), *parameter, min, max, step, page);
-    connect(sliderControl, SIGNAL(valueChanged()), this, SLOT(sliderValueChanged()));
+    connect(sliderControl, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
     m_boxLayout->addWidget(sliderControl);
-}
-
-void OperationControl::sliderValueChanged()
-{
-    emit valueChanged();
 }
 
 void OperationControl::close()
 {
     emit operationDeleted(this);
-}
-
-OperationControl::~OperationControl()
-{
-    ClearLayout(m_layout);
-    delete m_layout;
 }
 
 void OperationControl::dragPressed()

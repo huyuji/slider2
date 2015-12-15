@@ -5,24 +5,50 @@ using boost::property_tree::ptree;
 
 const char* OperationList::MimeDataFormat = "data/operation";
 
-OperationList::OperationList(QWidget* parent)
-    : QWidget(parent)
+OperationList::OperationList(boost::property_tree::ptree& operations, QWidget* parent)
+    : QWidget(parent), m_operations(operations)
 {
     setAcceptDrops(true);
     m_layout = new QVBoxLayout(this);
     m_layout->setSpacing(0);
     m_layout->setAlignment(Qt::AlignTop);
+
+    if(!m_operations.empty())
+    {
+        for(auto it = m_operations.begin(); it != m_operations.end(); ++it)
+        {
+            addOperation(it->first, it->second);
+        }
+
+        emit valueChanged();
+    }
 }
 
-void OperationList::add(OperationControl* item)
+void OperationList::addOperation(const std::string& operationName, boost::property_tree::ptree& parameters)
 {
-    m_layout->addWidget(item, 0);
-    connect(item, SIGNAL(dragStarted(OperationControl*)), this, SLOT(startDrag(OperationControl*)));
+    OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters, this);
+    connect(operationControl, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
+    connect(operationControl, SIGNAL(operationDeleted(QWidget*)), this, SLOT(deleteOperation(QWidget*)));
+    connect(operationControl, SIGNAL(dragStarted(OperationControl*)), this, SLOT(startDrag(OperationControl*)));
+    m_layout->addWidget(operationControl, 0);
 }
 
-void OperationList::clear()
+void OperationList::newOperation(const std::string& operationName)
 {
-    qDeleteAll(findChildren<QWidget*>());
+    m_operations.push_back(ptree::value_type(operationName, ptree()));
+    addOperation(operationName, m_operations.back().second);
+    emit valueChanged();
+}
+
+void OperationList::deleteOperation(QWidget* operationControl)
+{
+    const unsigned int index = m_layout->indexOf(operationControl);
+    m_layout->removeWidget(operationControl);
+    delete operationControl;
+    auto it = m_operations.begin();
+    std::advance(it, index);
+    m_operations.erase(it);
+    emit valueChanged();
 }
 
 void OperationList::startDrag(OperationControl* item)

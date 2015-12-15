@@ -11,25 +11,29 @@ class OperationList : public QWidget
     Q_OBJECT
 
 public:
-    OperationList(QWidget* parent = nullptr);
+    OperationList(boost::property_tree::ptree& operations, QWidget* parent = nullptr);
 
-    void add(OperationControl* item);
-    void clear();
+    void newOperation(const std::string& operationName);
+
+signals:
+    void valueChanged();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) Q_DECL_OVERRIDE;
     void dragMoveEvent(QDragMoveEvent *event) Q_DECL_OVERRIDE;
     void dropEvent(QDropEvent *event) Q_DECL_OVERRIDE;
 
-signals:
-
 private slots:
     void startDrag(OperationControl*);
+    void deleteOperation(QWidget*);
 
 private:
     static const char* MimeDataFormat;
 
     QVBoxLayout* m_layout;
+    boost::property_tree::ptree& m_operations;
+
+    void addOperation(const std::string& operationName, boost::property_tree::ptree& parameters);
 };
 
 #endif // header

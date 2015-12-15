@@ -11,8 +11,7 @@ class OperationControl : public QWidget
     Q_OBJECT
 
 public:
-    static OperationControl* CreateOperationControl(const std::string& operationName, boost::property_tree::ptree& parameters);
-    ~OperationControl();
+    static OperationControl* CreateOperationControl(const std::string& operationName, boost::property_tree::ptree& parameters, QWidget* parent = nullptr);
 
 signals:
     void valueChanged();
@@ -20,12 +19,11 @@ signals:
     void dragStarted(OperationControl*);
 
 protected:
-    OperationControl(const std::string& name);
+    OperationControl(const std::string& name, QWidget* parent = nullptr);
 
     void addSlider(const std::string& parameterName, boost::property_tree::ptree& parameters, int min = Min, int max = Max, unsigned int step = Step, unsigned int page = Page);
 
 private slots:
-    void sliderValueChanged();
     void close();
     void dragPressed();
 

@@ -13,7 +13,7 @@
 using boost::property_tree::ptree;
 
 ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
-    : m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr), m_output(operations)
+    : m_changeSaved(true), m_configurations(nullptr), m_operations(nullptr), m_output(operations), m_operationList(nullptr)
 {
     m_buttonLoad = new QPushButton("load");
     connect(m_buttonLoad, SIGNAL(clicked()), this, SLOT(loadConfigFile()));
@@ -53,22 +53,34 @@ ControlPanel::ControlPanel(const boost::property_tree::ptree *& operations)
     m_buttonLine2->addWidget(m_operationNameList, 1);
     m_buttonLine2->addWidget(m_buttonAddOperation, 0);
 
-    m_operationList = new OperationList();
-
     m_layout = new QVBoxLayout();
     m_layout->setAlignment(Qt::AlignTop);
     m_layout->addLayout(m_buttonLine1);
     m_layout->addLayout(m_buttonLine2);
-    m_layout->addWidget(m_operationList, 1);
     setLayout(m_layout);
+}
+
+void ControlPanel::clearOperationList()
+{
+    if(m_operationList)
+    {
+        m_layout->removeWidget(m_operationList);
+        delete m_operationList;
+        m_operationList = nullptr;
+    }
+}
+
+void ControlPanel::createOperationList(boost::property_tree::ptree& operations)
+{
+    clearOperationList();
+    m_operationList = new OperationList(operations, this);
+    connect(m_operationList, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
+    m_layout->addWidget(m_operationList, 1);
 }
 
 void ControlPanel::addOperation()
 {
-    std::string opName = m_operationNameList->currentText().toStdString();
-    m_operations->add_child(opName, ptree());
-    addOperation(opName, m_operations->back().second);
-    operationValueChanged();
+    m_operationList->newOperation(m_operationNameList->currentText().toStdString());
 }
 
 void ControlPanel::save()
@@ -133,7 +145,7 @@ void ControlPanel::clear()
     m_root.clear();
     m_configurations = nullptr;
     m_operations = nullptr;
-    m_operationList->clear();
+    clearOperationList();
     m_configurationList->clear();
 }
 
@@ -195,7 +207,7 @@ void ControlPanel::newConfiguration(const std::string& configName)
     config.put(ImageProcessor::Const::CONFIG_ISDEFAULT, false);
     config.add_child(ImageProcessor::Const::CONFIG_OPERATIONS, ptree());
     m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
-    m_operationList->clear();
+    createOperationList(*m_operations);
     m_buttonAddOperation->setDisabled(false);
 }
 
@@ -342,9 +354,8 @@ void ControlPanel::loadConfiguration(const QString& configName)
         const std::string name = config.get<std::string>(ImageProcessor::Const::CONFIG_NAME);
         if(boost::iequals(name, configName.toStdString()))
         {
-            m_operationList->clear();
             m_operations = &config.get_child(ImageProcessor::Const::CONFIG_OPERATIONS);
-            loadOperations();
+            createOperationList(*m_operations);
             m_output = m_operations;
             m_buttonAddOperation->setDisabled(false);
             emit operationChanged();
@@ -355,36 +366,8 @@ void ControlPanel::loadConfiguration(const QString& configName)
     throw std::runtime_error(("configuration " + configName.toStdString() + " not found"));
 }
 
-void ControlPanel::loadOperations()
-{
-    for(auto it = m_operations->begin(); it != m_operations->end(); ++it)
-    {
-        addOperation(it->first, it->second);
-    }
-}
-
-void ControlPanel::addOperation(const std::string& operationName, boost::property_tree::ptree& parameters)
-{
-    OperationControl* operationControl = OperationControl::CreateOperationControl(operationName, parameters);
-    connect(operationControl, SIGNAL(valueChanged()), this, SLOT(operationValueChanged()));
-    connect(operationControl, SIGNAL(operationDeleted(QWidget*)), this, SLOT(deleteOperation(QWidget*)));
-    m_operationList->add(operationControl);
-}
-
 ControlPanel::~ControlPanel()
 {
     ClearLayout(m_layout);
     delete m_layout;
-}
-
-void ControlPanel::deleteOperation(QWidget* operationControl)
-{
-    //const unsigned int index = m_operationLayout->indexOf(operationControl);
-    //m_operationLayout->removeWidget(operationControl);
-    //delete operationControl;
-
-    //auto it = m_operations->begin();
-    //std::advance(it, index);
-    //m_operations->erase(it);
-    //operationValueChanged();
 }

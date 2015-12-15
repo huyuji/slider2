@@ -27,7 +27,6 @@ private slots:
     void operationValueChanged();
     void loadConfigFile();
     void loadConfiguration(const QString& configName);
-    void deleteOperation(QWidget*);
 
 private:
     QVBoxLayout* m_layout;
@@ -51,8 +50,6 @@ private:
     bool readConfigFile(const std::string& configFilePath);
     void loadConfigurations();
     void refreshConfiguraionList(const std::vector<std::string>& configNames, const std::string& currentConfig);
-    void loadOperations();
-    void addOperation(const std::string& operationName, boost::property_tree::ptree& parameters);
 
     bool saveToFile();
     void saveToFile(const std::string& file);
@@ -60,6 +57,9 @@ private:
     void clear();
     void initRoot();
     void newConfiguration(const std::string& configName);
+
+    void clearOperationList();
+    void createOperationList(boost::property_tree::ptree& operations);
 };
 
 #endif // header

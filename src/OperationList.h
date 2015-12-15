@@ -33,6 +33,9 @@ private:
 
     QVBoxLayout* m_layout;
     boost::property_tree::ptree& m_operations;
+    unsigned int m_indexBeforeMoving;
+    OperationControl* m_movingOperationControl;
+    QFrame* m_indicator;
 
     void addOperation(const std::string& operationName, boost::property_tree::ptree& parameters);
 };

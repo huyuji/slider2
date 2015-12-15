@@ -1,4 +1,5 @@
 #include "OperationList.h"
+#include <qdebug.h>
 #include "OperationControl.h"
 
 using boost::property_tree::ptree;
@@ -6,12 +7,17 @@ using boost::property_tree::ptree;
 const char* OperationList::MimeDataFormat = "data/operation";
 
 OperationList::OperationList(boost::property_tree::ptree& operations, QWidget* parent)
-    : QWidget(parent), m_operations(operations)
+    : QWidget(parent), m_operations(operations), m_movingOperationControl(nullptr)
 {
     setAcceptDrops(true);
     m_layout = new QVBoxLayout(this);
     m_layout->setSpacing(0);
     m_layout->setAlignment(Qt::AlignTop);
+
+    m_indicator = new QFrame(this);
+    m_indicator->setFrameShape(QFrame::HLine);
+    m_indicator->setFrameShadow(QFrame::Sunken);
+    m_indicator->hide();
 
     if(!m_operations.empty())
     {
@@ -53,11 +59,9 @@ void OperationList::deleteOperation(OperationControl* operationControl)
 
 void OperationList::startDrag(OperationControl* item)
 {
-    const unsigned int index = m_layout->indexOf(item);
-
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-    dataStream << index;
+    dataStream << (int)item;
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(MimeDataFormat, itemData);
@@ -66,10 +70,10 @@ void OperationList::startDrag(OperationControl* item)
     drag->setMimeData(mimeData);
     drag->setPixmap(item->grab());
 
-    QGraphicsOpacityEffect * effect = new QGraphicsOpacityEffect();
-    effect->setOpacity(0.5);
-    item->setGraphicsEffect(effect);
-
+    m_indexBeforeMoving = m_layout->indexOf(item);
+    m_layout->removeWidget(item);
+    item->hide();
+    m_movingOperationControl = item;
     Qt::DropAction dropAction = drag->exec();
 }
 
@@ -84,24 +88,22 @@ void OperationList::dragEnterEvent(QDragEnterEvent *event)
 void OperationList::dragMoveEvent(QDragMoveEvent *event)
 {
     if (event->mimeData()->hasFormat(MimeDataFormat)) {
-        QByteArray itemData = event->mimeData()->data(MimeDataFormat);
-        QDataStream dataStream(&itemData, QIODevice::ReadOnly);
-        unsigned int index = -1;
-        dataStream >> index;
-
-        foreach(QWidget* item, findChildren<QWidget*>())
+        unsigned int y = 0;
+        for(unsigned int i = 0; i < m_layout->count(); i++)
         {
-            if(event->answerRect().intersects(item->geometry()))
+            QWidget* item = m_layout->itemAt(i)->widget();
+            const QRect& itemRect = item->geometry();
+            y = itemRect.bottom();
+            if(itemRect.contains(event->pos()))
             {
-                unsigned int targetIndex = m_layout->indexOf(item);
-                if(targetIndex != index)
-                {
-                    auto item = m_layout->itemAt(index);
-                    m_layout->removeItem(item);
-                    m_layout->insertItem(targetIndex, item);
-                }
+                y = itemRect.top();
+                break;
             }
         }
+        
+        QRect rect(0, y, this->width(), 5);
+        m_indicator->setGeometry(rect);
+        m_indicator->show();
 
         event->accept();
     } else {
@@ -112,9 +114,33 @@ void OperationList::dragMoveEvent(QDragMoveEvent *event)
 void OperationList::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat(MimeDataFormat)) {
-        QMessageBox::information(this, QGuiApplication::applicationDisplayName(), tr("dropped"));
-        
-        //event->setDropAction(Qt::MoveAction);
+        unsigned int i = 0;
+        for(; i < m_layout->count(); i++)
+        {
+            QWidget* item = m_layout->itemAt(i)->widget();
+            const QRect& itemRect = item->geometry();
+            if(itemRect.contains(event->pos()))
+            {
+                break;
+            }
+        }
+
+        m_indicator->hide();
+        m_layout->insertWidget(i, m_movingOperationControl);
+        m_movingOperationControl->show();
+
+        if(i != m_indexBeforeMoving)
+        {
+            auto it = m_operations.begin();
+            std::advance(it, m_indexBeforeMoving);
+            auto temp = *it;
+            m_operations.erase(it);
+            it = m_operations.begin();
+            std::advance(it, i);
+            m_operations.insert(it, temp);
+            emit valueChanged();
+        }
+
         event->accept();
     } else {
         event->ignore();

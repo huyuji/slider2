@@ -66,7 +66,6 @@ public:
 private slots:
     void open();
     void save();
-    void saveAs();
     void zoomIn();
     void zoomOut();
     void normalSize();
@@ -86,7 +85,6 @@ private:
 
     QAction *openAct;
     QAction *saveAct;
-    QAction *saveAsAct;
     QAction *exitAct;
     QAction *zoomInAct;
     QAction *zoomOutAct;

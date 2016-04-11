@@ -39,7 +39,8 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include "imageviewer.h"
 #include "ControlPanel.h"
 #include "util.h"
@@ -97,7 +98,6 @@ bool ImageViewer::loadFile(const QString &fileName)
     scaleFactor = 1.0;
 
     saveAct->setEnabled(true);
-    saveAsAct->setEnabled(true);
     fitToWindowAct->setEnabled(true);
     updateActions();
 
@@ -131,14 +131,23 @@ void ImageViewer::open()
 
 void ImageViewer::save()
 {
-    //TODO: save image
-    QMessageBox::information(this, QGuiApplication::applicationDisplayName(), tr("save"));
-}
+    QFileDialog dialog(this, tr("Save Image File"), QString(), tr("PNG File (*.png)"));
+    if(dialog.exec() == QDialog::Accepted)
+    {
+      boost::filesystem::path dst(dialog.selectedFiles().first().toStdString());
+      if(!dst.empty())
+      {
+        if(!boost::iequals(dst.extension().string(), ".png"))
+        {
+          dst = dst.string() + ".png";
+        }
 
-void ImageViewer::saveAs()
-{
-    //TODO: save image
-    QMessageBox::information(this, QGuiApplication::applicationDisplayName(), tr("save as"));
+        if(!imageLabel->pixmap()->save(QString(dst.string().c_str())))
+        {
+          QMessageBox::information(this, QGuiApplication::applicationDisplayName(), tr("failed to save image to file"));
+        }
+      }
+    }
 }
 
 void ImageViewer::zoomIn()
@@ -185,15 +194,10 @@ void ImageViewer::createActions()
     openAct->setShortcut(tr("Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    saveAct = new QAction(tr("&Save Image..."), this);
+    saveAct = new QAction(tr("&Save Processed Image..."), this);
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setEnabled(false);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
-
-    saveAsAct = new QAction(tr("Save Image As..."), this);
-    saveAsAct->setShortcut(tr("Ctrl+Shift+S"));
-    saveAsAct->setEnabled(false);
-    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -232,7 +236,6 @@ void ImageViewer::createMenus()
     fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
-    fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
